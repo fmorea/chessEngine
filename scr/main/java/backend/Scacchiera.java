@@ -9,18 +9,58 @@ package backend;
  * lettera maiuscola rappresenta il colore del pezzo
  */
 public class Scacchiera {
-    private String[][] matrix = new String[8][8];
+    private String[][] matrix;
 
-    public void setPezzo(int x,int y,String pezzo){
-        if(     x<=0 ||
-                x>=8 ||
-                y<=0 ||
-                y>=8){
+    public Scacchiera(){
+        this.matrix = new String[8][8];
+
+        this.setPezzo(2,1,"pedB");
+        this.setPezzo(2,2,"pedB");
+        this.setPezzo(2,3,"pedB");
+        this.setPezzo(2,4,"pedB");
+        this.setPezzo(2,5,"pedB");
+        this.setPezzo(2,6,"pedB");
+        this.setPezzo(2,7,"pedB");
+        this.setPezzo(2,8,"pedB");
+
+        this.setPezzo(7,1,"pedN");
+        this.setPezzo(7,2,"pedN");
+        this.setPezzo(7,3,"pedN");
+        this.setPezzo(7,4,"pedN");
+        this.setPezzo(7,5,"pedN");
+        this.setPezzo(7,6,"pedN");
+        this.setPezzo(7,7,"pedN");
+        this.setPezzo(7,8,"pedN");
+
+        this.setPezzo(1,1,"torB");
+        this.setPezzo(1,8,"torB");
+        this.setPezzo(1,2,"cavB");
+        this.setPezzo(1,7,"cavB");
+        this.setPezzo(1,3,"alfB");
+        this.setPezzo(1,6,"alfB");
+        this.setPezzo(1,4,"donB");
+        this.setPezzo(1,5,"re_B");
+
+        this.setPezzo(8,1,"torN");
+        this.setPezzo(8,8,"torN");
+        this.setPezzo(8,2,"cavN");
+        this.setPezzo(8,7,"cavN");
+        this.setPezzo(8,3,"alfN");
+        this.setPezzo(8,6,"alfN");
+        this.setPezzo(8,4,"donN");
+        this.setPezzo(8,5,"re_N");
+    }
+
+    public void setPezzo(int y,int x,String pezzo){
+        if(     y<=0 ||
+                y>8 ||
+                x<=0 ||
+                x>8){
             return;
         }
-        this.matrix[x-1][y-1]=pezzo;
+        this.matrix[y-1][x-1]=pezzo;
     }
-    public void setPezzo(char c,int y,String pezzo){
+    public void setPezzo(char c,int x,String pezzo){
         if(     c != 'a' &&
                 c != 'b' &&
                 c != 'd' &&
@@ -30,53 +70,64 @@ public class Scacchiera {
                 c != 'h' ){
             return;
         }
-        int x;
+        int y;
         switch(c) {
             case 'a':
-                x=1;
+                y=1;
                 break;
             case 'b':
-                x=2;
+                y=2;
                 break;
             case 'c':
-                x=3;
+                y=3;
                 break;
             case 'd':
-                x=4;
+                y=4;
                 break;
             case 'e':
-                x=5;
+                y=5;
                 break;
             case 'f':
-                x=6;
+                y=6;
                 break;
             case 'g':
-                x=7;
+                y=7;
                 break;
             case 'h':
-                x=8;
+                y=8;
                 break;
             default:
-                x=9;
+                y=9;
         }
-        this.setPezzo(x,y,pezzo);
+        this.setPezzo(y,x,pezzo);
+    }
+
+    public String getPezzo(int y, int x){
+        return matrix[y-1][x-1];
     }
 
     public void print(){
-        for (int x=7;x>=0;x--){
-            for (int y=0;y<8;y++){
-                System.out.print(matrix[x][y]);
+        for (int y=7;y>=0;y--){
+            for (int x=0;x<8;x++){
+                System.out.print(matrix[y][x]);
                 System.out.print(" ");
             }
             System.out.println();
         }
+        System.out.println();
+        System.out.println();
     }
 
     public static void main(String[] args) {
         Scacchiera scacchiera = new Scacchiera();
-        scacchiera.setPezzo(1,2,"pedB");
-        scacchiera.setPezzo('b',2,"pedN");
         scacchiera.print();
+        // uno spostamento di pezzo potrebbe essere una cosa del genere
+        // a patto di controllare che sia una mossa legale
+        String temp = scacchiera.getPezzo(2,5);
+        scacchiera.setPezzo(2,5,null);
+        scacchiera.setPezzo(4,5,temp);
+        scacchiera.print();
+
     }
 
 }
