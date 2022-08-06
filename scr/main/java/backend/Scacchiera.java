@@ -103,23 +103,31 @@ public class Scacchiera {
     }
 
     public String getPezzo(int y, int x){
+        if(     y<=0 ||
+                y>8 ||
+                x<=0 ||
+                x>8){
+            return "outOfBound";
+        }
         return matrix[y-1][x-1];
     }
 
     public void print(){
-        System.out.print("  a    ");
-        System.out.print("b    ");
-        System.out.print("c    ");
-        System.out.print("d    ");
-        System.out.print("e    ");
-        System.out.print("f    ");
-        System.out.print("g    ");
-        System.out.print("h    ");
+        System.out.print("  a/1  ");
+        System.out.print("b/2  ");
+        System.out.print("c/3  ");
+        System.out.print("d/4  ");
+        System.out.print("e/5  ");
+        System.out.print("f/6  ");
+        System.out.print("g/7  ");
+        System.out.print("h/8  ");
         System.out.println();
         for (int y=7;y>=0;y--){
             for (int x=0;x<8;x++){
                 if(x==0){
-                    System.out.print(y+ " ");;
+                    y=y+1;
+                    System.out.print(y+ " ");
+                    y=y-1;
                 }
                 System.out.print(matrix[y][x]);
                 System.out.print(" ");
@@ -131,7 +139,7 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x){
-        if (this.getPezzo(y0,x0).equals(null)){
+        if (this.getPezzo(y0,x0) == null){
             return false;
         }
         else{
@@ -147,8 +155,9 @@ public class Scacchiera {
         scacchiera.print();
         // uno spostamento di pezzo potrebbe essere una cosa del genere
         // a patto di controllare che sia una mossa legale
-        scacchiera.move(2,5,4,5);
+        scacchiera.move(3,2,2,2);
         scacchiera.print();
+        System.out.println(scacchiera.getPezzo(8,2));
 
     }
 
