@@ -11,7 +11,10 @@ public class EditMode {
         boolean end = false;
         while(!end){
             s.print();
-            CommandPrompt.ask("Inserisci casella di origine e di destinazione","MOSSA: ");
+            CommandPrompt.ask("Inserisci casella di origine e di destinazione\n" +
+                    "esempio: a2 a4\n" +
+                    "oppure: 12 14\n"
+                    ,"MOSSA: ");
             while (!CommandPrompt.inputLetto()){};
             ArrayList<String> parsedStrings =
                     new ArrayList<>(Arrays.asList(CommandPrompt.gotFromTerminal().split(" ")));
@@ -30,7 +33,7 @@ public class EditMode {
                     x<=0 ||
                     x>8
             ){
-
+                // Forse l'utente non ha utilizzato la notazione con la lettera ma quella con il numero?
                 x0 = Character.getNumericValue(parsedStrings.get(0).charAt(0));
                 x = Character.getNumericValue(parsedStrings.get(1).charAt(0));
             }
