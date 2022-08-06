@@ -150,15 +150,4 @@ public class Scacchiera {
         }
     }
 
-    public static void main(String[] args) {
-        Scacchiera scacchiera = new Scacchiera();
-        scacchiera.print();
-        // uno spostamento di pezzo potrebbe essere una cosa del genere
-        // a patto di controllare che sia una mossa legale
-        scacchiera.move(3,2,2,2);
-        scacchiera.print();
-        System.out.println(scacchiera.getPezzo(8,2));
-
-    }
-
 }
