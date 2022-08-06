@@ -107,8 +107,20 @@ public class Scacchiera {
     }
 
     public void print(){
+        System.out.print("  a    ");
+        System.out.print("b    ");
+        System.out.print("c    ");
+        System.out.print("d    ");
+        System.out.print("e    ");
+        System.out.print("f    ");
+        System.out.print("g    ");
+        System.out.print("h    ");
+        System.out.println();
         for (int y=7;y>=0;y--){
             for (int x=0;x<8;x++){
+                if(x==0){
+                    System.out.print(y+ " ");;
+                }
                 System.out.print(matrix[y][x]);
                 System.out.print(" ");
             }
@@ -118,14 +130,24 @@ public class Scacchiera {
         System.out.println();
     }
 
+    public boolean move(int y0, int x0, int y, int x){
+        if (this.getPezzo(y0,x0).equals(null)){
+            return false;
+        }
+        else{
+            String temp = this.getPezzo(y0,x0);
+            this.setPezzo(y0,x0,null);
+            this.setPezzo(y,x,temp);
+            return true;
+        }
+    }
+
     public static void main(String[] args) {
         Scacchiera scacchiera = new Scacchiera();
         scacchiera.print();
         // uno spostamento di pezzo potrebbe essere una cosa del genere
         // a patto di controllare che sia una mossa legale
-        String temp = scacchiera.getPezzo(2,5);
-        scacchiera.setPezzo(2,5,null);
-        scacchiera.setPezzo(4,5,temp);
+        scacchiera.move(2,5,4,5);
         scacchiera.print();
 
     }
