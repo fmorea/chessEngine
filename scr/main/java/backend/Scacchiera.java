@@ -10,6 +10,7 @@ package backend;
  */
 public class Scacchiera {
     private String[][] matrix;
+    private boolean toccaAlBianco = true;
 
     public Scacchiera(){
         this.matrix = new String[8][8];
@@ -139,15 +140,22 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x){
-        if (this.getPezzo(y0,x0) == null){
+        if ( this.getPezzo(y0,x0) == null ||
+                ((y0 == y) && (y == x)) ||
+                (this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'N') ||
+                (!this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'B')){
             return false;
         }
         else{
             String temp = this.getPezzo(y0,x0);
             this.setPezzo(y0,x0,null);
             this.setPezzo(y,x,temp);
+            toccaAlBianco = !toccaAlBianco;
             return true;
         }
     }
 
+    public boolean toccaAlBianco() {
+        return toccaAlBianco;
+    }
 }

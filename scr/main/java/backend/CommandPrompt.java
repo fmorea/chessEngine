@@ -1,4 +1,4 @@
-package frontend;
+package backend;
 import utils.observerPattern.Observer;
 import utils.observerPattern.Subject;
 
@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Class representing the terminal (or cmd in windows)
