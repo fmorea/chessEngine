@@ -6,7 +6,7 @@ package backend;
  * Una casa può essere vuota (Stringa = null)
  * oppure può essere occupata da un pezzo,
  * per il nome dei pezzi si è scelto un nome di 4 lettere, la cui ultima
- * lettera maiuscola rappresenta il colore del pezzo
+ * lettera maiuscola rappresenta il colore del pezzo (B per bianco, N per nero)
  */
 public class Scacchiera {
     private String[][] matrix;
@@ -130,20 +130,41 @@ public class Scacchiera {
                     System.out.print(y+ " ");
                     y=y-1;
                 }
-                System.out.print(matrix[y][x]);
+                if (matrix[y][x]!=null){
+                    System.out.print(matrix[y][x]);
+                }
+                else{
+                    System.out.print(" __ ");
+                }
+                if(x==7){
+                    y=y+1;
+                    System.out.print(" " + y);
+                    y=y-1;
+                }
                 System.out.print(" ");
             }
             System.out.println();
         }
+        System.out.print("  a/1  ");
+        System.out.print("b/2  ");
+        System.out.print("c/3  ");
+        System.out.print("d/4  ");
+        System.out.print("e/5  ");
+        System.out.print("f/6  ");
+        System.out.print("g/7  ");
+        System.out.print("h/8  ");
+        System.out.println();
         System.out.println();
         System.out.println();
     }
 
     public boolean move(int y0, int x0, int y, int x){
-        if ( this.getPezzo(y0,x0) == null ||
-                ((y0 == y) && (y == x)) ||
-                (this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'N') ||
-                (!this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'B')){
+        if ( this.getPezzo(y0,x0) == null || // se la casella di partenza non è vuota
+                ((y0 == y) && (y == x)) ||  // se la casella di partenza è diversa da quella di destinazione
+                (this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'N') || // se vuoi muovere un pezzo di colore diverso
+                (!this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'B') ||
+                !this.isLegalMove(y0,x0,y,x)
+        ){
             return false;
         }
         else{
@@ -154,6 +175,127 @@ public class Scacchiera {
             return true;
         }
     }
+
+    private boolean isLegalMove(int y0, int x0, int y, int x) {
+        boolean isLegalMove = false;
+        switch(this.getPezzo(y0,x0).charAt(0)) {
+            case 'p': // pedina
+                if(this.getPezzo(y0,x0).charAt(3)== 'B'){ // pedina bianca
+                    if(y0 == 2){
+                        if ( y == 3 || y == 4){
+                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
+                            this.getPezzo(y,x).charAt(0) != 'r'
+                            ){
+                                if(this.toccaAlBianco()){
+                                    if (this.getPezzo(y,x).charAt(3) =='B' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                           (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                                }
+                                else{
+                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (this.getPezzo(y,x) == null){
+                                if (x0 == x){
+                                    isLegalMove = true;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if(y == y0 + 1 && isInsideChessBoard(y0+1)){
+                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
+                                    this.getPezzo(y,x).charAt(0) != 'r'
+                            ){
+                                if(this.toccaAlBianco()){
+                                    if (this.getPezzo(y,x).charAt(3) =='B' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                                }
+                                else{
+                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                                }
+                            }
+                            else if (this.getPezzo(y,x) == null){
+                                if (x0 == x){
+                                    isLegalMove = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                else{ // pedina nera
+                    if(y0 == 7){
+                        if ( y == 6 || y == 5){
+                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
+                                    this.getPezzo(y,x).charAt(0) != 'r'
+                            ){
+
+                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                            }
+                            else if (this.getPezzo(y,x) == null){
+                                if (x0 == x){
+                                    isLegalMove = true;
+                                }
+                            }
+                        }
+                    }
+                    else{
+                        if(y == y0 - 1 && isInsideChessBoard(y0-1)){
+                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
+                                    this.getPezzo(y,x).charAt(0) != 'r'
+                            ){
+
+                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
+                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                                            isLegalMove = true;
+                                        }
+                                    }
+                            }
+                            else if (this.getPezzo(y,x) == null){
+                                if (x0 == x){
+                                    isLegalMove = true;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            default:
+                isLegalMove = true; // debug purposes
+        }
+        return isLegalMove;
+    }
+
+    private boolean isInsideChessBoard(int w){
+        if(w<=0 || w>8){
+            return  false;
+        }
+        else return true;
+    }
+
 
     public boolean toccaAlBianco() {
         return toccaAlBianco;
