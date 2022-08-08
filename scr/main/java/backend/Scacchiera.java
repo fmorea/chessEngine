@@ -7,6 +7,8 @@ package backend;
  * oppure può essere occupata da un pezzo,
  * per il nome dei pezzi si è scelto un nome di 4 lettere, la cui ultima
  * lettera maiuscola rappresenta il colore del pezzo (B per bianco, N per nero)
+ * la prima lettera rappresenta il nome del pezzo in italiano (p,d,t,a,c)
+ * le rimanenti 2 lettere centrali del nome possono essere utilizzate come meta-dati in casi particolari
  */
 public class Scacchiera {
     private String[][] matrix;
