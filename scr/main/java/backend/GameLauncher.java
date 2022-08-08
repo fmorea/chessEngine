@@ -46,7 +46,7 @@ public class GameLauncher {
                 int x = parsedStrings.get(1).charAt(0) - 'a' + 1;
                 int y = Character.getNumericValue(parsedStrings.get(1).charAt(1));
 
-                if (y0 <= 0 ||
+                if (    y0 <= 0 ||
                         y0 > 8 ||
                         x0 <= 0 ||
                         x0 > 8 ||

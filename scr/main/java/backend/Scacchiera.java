@@ -159,10 +159,10 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x){
-        if ( this.getPezzo(y0,x0) == null || // se la casella di partenza non è vuota
+        if ( isEmpty(y0,x0) || // se la casella di partenza non è vuota
                 ((y0 == y) && (y == x)) ||  // se la casella di partenza è diversa da quella di destinazione
-                (this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'N') || // se vuoi muovere un pezzo di colore diverso
-                (!this.toccaAlBianco && this.getPezzo(y0,x0).charAt(3) == 'B') ||
+                (toccaAlBianco() && isNero(y0,x0)) || // se vuoi muovere un pezzo di colore diverso
+                (toccaAlNero() && isBianco(y0,x0)) ||
                 !this.isLegalMove(y0,x0,y,x)
         ){
             return false;
@@ -176,110 +176,94 @@ public class Scacchiera {
         }
     }
 
-    private boolean isLegalMove(int y0, int x0, int y, int x) {
-        boolean isLegalMove = false;
-        switch(this.getPezzo(y0,x0).charAt(0)) {
-            case 'p': // pedina
-                if(this.getPezzo(y0,x0).charAt(3)== 'B'){ // pedina bianca
-                    if(y0 == 2){
-                        if ( y == 3 || y == 4){
-                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
-                            this.getPezzo(y,x).charAt(0) != 'r'
-                            ){
-                                if(this.toccaAlBianco()){
-                                    if (this.getPezzo(y,x).charAt(3) =='B' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                           (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                                }
-                                else{
-                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                                }
-                            }
-                            else if (this.getPezzo(y,x) == null){
-                                if (x0 == x){
-                                    isLegalMove = true;
-                                }
-                            }
-                        }
-                    }
-                    else{
-                        if(y == y0 + 1 && isInsideChessBoard(y0+1)){
-                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
-                                    this.getPezzo(y,x).charAt(0) != 'r'
-                            ){
-                                if(this.toccaAlBianco()){
-                                    if (this.getPezzo(y,x).charAt(3) =='B' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                                }
-                                else{
-                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                                }
-                            }
-                            else if (this.getPezzo(y,x) == null){
-                                if (x0 == x){
-                                    isLegalMove = true;
-                                }
-                            }
-                        }
+    public char getTipoPezzo(int y,int x){
+        if (this.getPezzo(y,x)!=null){
+            return this.getPezzo(y,x).charAt(0);
+        }
+        else return '0';
+
+    }
+    public char getColorePezzo(int y,int x){
+        if (this.getPezzo(y,x)!=null){
+            return this.getPezzo(y,x).charAt(3);
+        }
+        else return '0';
+
+    }
+
+    public boolean isEmpty(int y, int x){
+        if (this.getPezzo(y,x)!=null){
+            return false;
+        }
+        else return true;
+    }
+
+    public boolean isBianco(int y,int x) {
+        if (getColorePezzo(y,x)== 'B'){
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean isNero(int y,int x) {
+        if (getColorePezzo(y,x)== 'N'){
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean isNotRe(int y, int x) {
+        if (getTipoPezzo(y,x) != 'r' && !isEmpty(y,x)){
+            return true;
+        }
+        else return false;
+    }
+
+    public boolean thereIsAnEatablePieceByPawn(int y0,int x0,int y,int x){
+        boolean answer = false;
+        if(getColorePezzo(y,x) != getColorePezzo(y0,x0) && getColorePezzo(y0,x0) != '0' && getColorePezzo(y,x)!='0'){
+            if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
+                    (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
+                if(isBianco(y0,x0)){
+                    if(y == y0 + 1){
+                        answer = true;
                     }
                 }
-                else{ // pedina nera
-                    if(y0 == 7){
-                        if ( y == 6 || y == 5){
-                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
-                                    this.getPezzo(y,x).charAt(0) != 'r'
-                            ){
+                else if(isNero(y0,x0)){
+                    if(y == y0 - 1){
+                        answer = true;
+                    }
+                }
+            }
+        }
+        return answer;
+    }
 
-                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                            }
-                            else if (this.getPezzo(y,x) == null){
-                                if (x0 == x){
-                                    isLegalMove = true;
-                                }
-                            }
+    public boolean legalPawnMove(int y0, int x0, int y, int x){
+        boolean isLegalMove = false;
+        if (isNotRe(y,x)){
+            isLegalMove = thereIsAnEatablePieceByPawn(y0,x0,y,x);
+        }
+        else if (isEmpty(y,x)){
+            if (x0 == x){
+                isLegalMove = true;
+            }
+        }
+        return  isLegalMove;
+    }
+
+    private boolean isLegalMove(int y0, int x0, int y, int x) {
+        boolean isLegalMove = false;
+        switch(getTipoPezzo(y0,x0)) {
+            case 'p': // pedina
+                if(isBianco(y0,x0)){
+                    if((y0 == 2 && y == 4 ) || (y == y0 + 1 && isInsideChessBoard(y0+1))){
+                        isLegalMove = legalPawnMove(y0,x0,y,x);
                         }
                     }
-                    else{
-                        if(y == y0 - 1 && isInsideChessBoard(y0-1)){
-                            if (this.getPezzo(y,x) != null      && // caso pezzo da mangiare (En passant to do)
-                                    this.getPezzo(y,x).charAt(0) != 'r'
-                            ){
-
-                                    if (this.getPezzo(y,x).charAt(3) =='N' ){
-                                        if((x == x0 - 1 && isInsideChessBoard(x0-1)) ||
-                                                (x == x0 + 1 && isInsideChessBoard(x0+1)) ){
-                                            isLegalMove = true;
-                                        }
-                                    }
-                            }
-                            else if (this.getPezzo(y,x) == null){
-                                if (x0 == x){
-                                    isLegalMove = true;
-                                }
-                            }
-                        }
+                else if (isNero(y0,x0)){ // pedina nera
+                    if((y0 == 7 && y == 5 ) || (y == y0 - 1 && isInsideChessBoard(y0-1))){
+                        isLegalMove = legalPawnMove(y0,x0,y,x);
                     }
                 }
                 break;
@@ -299,5 +283,9 @@ public class Scacchiera {
 
     public boolean toccaAlBianco() {
         return toccaAlBianco;
+    }
+
+    public boolean toccaAlNero() {
+        return !toccaAlBianco;
     }
 }
