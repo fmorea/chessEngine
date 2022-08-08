@@ -141,8 +141,8 @@ public class GameLauncher {
             if (cheatmode){
                 if (parsedStrings.size() == 4 &&
                     parsedStrings.get(0).equals( "set")){
-                    int y =Character.getNumericValue(parsedStrings.get(1).charAt(0));
-                    int x= Character.getNumericValue(parsedStrings.get(2).charAt(0));
+                    int x =Character.getNumericValue(parsedStrings.get(1).charAt(0));
+                    int y= Character.getNumericValue(parsedStrings.get(2).charAt(0));
                     String pezzo = parsedStrings.get(3);
                     s.setPezzo(y,x,pezzo);
                     correctInput = true;
@@ -159,6 +159,11 @@ public class GameLauncher {
                             s.setPezzo(i,j,null);
                         }
                     }
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "lockturn")){
+                    s.lockTurn();
                     correctInput = true;
                 }
             }

@@ -13,6 +13,7 @@ package backend;
 public class Scacchiera {
     private String[][] matrix;
     private boolean toccaAlBianco = true;
+    private boolean lockTurn = false;
 
     public Scacchiera(){
         this.matrix = new String[8][8];
@@ -176,7 +177,9 @@ public class Scacchiera {
         }
         else{
             forceMove(y0,x0,y,x);
-            toccaAlBianco = !toccaAlBianco;
+            if(!lockTurn) {
+                toccaAlBianco = !toccaAlBianco;
+            }
             return true;
         }
     }
@@ -355,6 +358,49 @@ public class Scacchiera {
                     }
                 }
                 break;
+            case 'a':
+                int m;
+                boolean pieceInTheMiddle = false;
+                if ( x != x0){
+                    m=(y-y0)/(x-x0);
+                    System.out.println(m);
+                }
+                else if(y == y0){m=1;}
+                else m = 0;
+                    if (m == 1  || m == -1){ // i due pezzi sono allineati in diagonale
+                    int dist = (int)Math.ceil(Math.abs(Math.sqrt(Math.pow(x0-x,2)+Math.pow(y0-y,2)))/Math.sqrt(2));
+                    System.out.println(dist);
+                    if(m == 1){
+                        int min = Math.min(y0,y);
+                        int x_del_min;
+                        if (min == y0){
+                            x_del_min = x0;
+                        }
+                        else {
+                            x_del_min=x;
+                        }
+                        if((isNotRe(y,x) && getColorePezzo(y,x) != getColorePezzo(y0,x0)) ||
+                                isEmpty(y,x)) {
+                            int xx = x_del_min;
+                            int yy = min;
+                            for (int i = 1; i < dist; i++) {
+                                xx = xx + 1;
+                                yy = yy + 1;
+                                System.out.println(xx+ " " + yy );
+                                if (!isEmpty(xx, yy)) {
+                                    pieceInTheMiddle = true;
+                                    System.out.println("not empty");
+                                }
+                                else {
+                                    System.out.println("empty");
+                                }
+                            }
+                            isLegalMove = !pieceInTheMiddle;
+                        }
+                    }
+
+                }
+                break;
             default:
                 isLegalMove = true; // debug purposes
         }
@@ -375,5 +421,9 @@ public class Scacchiera {
 
     public boolean toccaAlNero() {
         return !toccaAlBianco;
+    }
+
+    public void lockTurn(){
+        lockTurn = !lockTurn;
     }
 }
