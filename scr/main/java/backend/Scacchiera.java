@@ -16,7 +16,9 @@ public class Scacchiera {
 
     public Scacchiera(){
         this.matrix = new String[8][8];
+    }
 
+    public void createStandardChessboard(){
         this.setPezzo(2,1,"pedB");
         this.setPezzo(2,2,"pedB");
         this.setPezzo(2,3,"pedB");
@@ -321,6 +323,35 @@ public class Scacchiera {
                 else if (isNero(y0,x0)){
                     if((y0 == 7 && y == 5 ) || (y == y0 - 1 && isInsideChessBoard(y0-1))){
                         isLegalMove = legalPawnMove(y0,x0,y,x);
+                    }
+                }
+                break;
+            case 't':
+                int distance, minimum;
+                boolean thereIsAPieceInTheMiddle = false;
+                if((isNotRe(y,x) && getColorePezzo(y,x) != getColorePezzo(y0,x0)) ||
+                    isEmpty(y,x)) {
+                    if (y0 == y) {
+                        distance = Math.max(x0, x) - Math.min(x0, x);
+                        // se c'è un pezzo in mezzo la mossa è illegale
+                        minimum = Math.min(x0, x);
+                        for (int i = 1; i < distance; i++) {
+                            if (!isEmpty(y, minimum + i)) {
+                                thereIsAPieceInTheMiddle = true;
+                            }
+                        }
+                        isLegalMove = !thereIsAPieceInTheMiddle;
+                    }
+                    if (x0 == x) {
+                        distance = Math.max(y0, y) - Math.min(y0, y);//2
+                        // se c'è un pezzo in mezzo la mossa è illegale
+                        minimum = Math.min(y0, y);//5
+                        for (int i = 1; i < distance; i++) {
+                            if (!isEmpty(minimum + i, x)) {
+                                thereIsAPieceInTheMiddle = true;
+                            }
+                        }
+                        isLegalMove = !thereIsAPieceInTheMiddle;
                     }
                 }
                 break;

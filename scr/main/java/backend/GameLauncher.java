@@ -7,9 +7,6 @@ import java.util.Arrays;
  * Questa classe fa il parsing dell'input dell'utente,
  * L'utente deve infatti scrivere la posizione di origine e quella di
  * destinazione del pezzo che vuole muovere.
- * Si è cercato di rendere il più permissivo possibile il parsing dell'input,
- * tale da rendere "piacevole" l'utilizzo della Command Line Interface
- * (la gui sarà forse fatta solo successivamente).
  */
 public class GameLauncher {
     private static Scacchiera s = new Scacchiera();
@@ -17,6 +14,17 @@ public class GameLauncher {
         boolean end = false;
         boolean hasMoved = true;
         boolean correctInput = true;
+        boolean cheatmode = false;
+        CommandPrompt.ask("Premere un tasto per iniziare una nuova partita\n"
+                ,"*************************************************");
+        while (!CommandPrompt.inputLetto()){};
+        if (!CommandPrompt.gotFromTerminal().equals("cheat")){
+            s.createStandardChessboard();
+        }
+        else{
+            cheatmode = true;
+            System.out.println("Welcome Man");
+        }
         while(!end){
             s.print();
             if(!hasMoved){
@@ -32,12 +40,17 @@ public class GameLauncher {
             else{
                 System.out.println("Tocca al nero");
             }
-            CommandPrompt.ask("Inserisci casella di origine e di destinazione\n" +
-                    "esempio sintassi ritenute corrette: \na2 a4\n" +
-                    "oppure: a2a4\n"+
-                    "oppure: 12 14\n"+
-                    "oppure: 1214\n"
-                    ,"MOSSA: ");
+            if(!cheatmode) {
+                CommandPrompt.ask("Inserisci casella di origine e di destinazione\n" +
+                                "esempio sintassi ritenute corrette: \na2 a4\n" +
+                                "oppure: a2a4\n" +
+                                "oppure: 12 14\n" +
+                                "oppure: 1214\n"
+                        , "MOSSA: ");
+            }
+            else{
+                CommandPrompt.ask("","COMMAND:");
+            }
 
             // ciclo while necessario perché l'input è non bloccante (non si sa mai che
             // in futuro non si debbano utilizzare threads ed un sistema "ad eventi")
@@ -45,7 +58,7 @@ public class GameLauncher {
 
             ArrayList<String> parsedStrings =
                     new ArrayList<>(Arrays.asList(CommandPrompt.gotFromTerminal().split(" ")));
-            if(     parsedStrings.size() >= 2 &&
+            if(     parsedStrings.size() == 2 &&
                     parsedStrings.get(1)!=null &&
                     parsedStrings.get(0)!=null &&
                     !parsedStrings.get(0).isEmpty() &&
@@ -77,7 +90,7 @@ public class GameLauncher {
                         y > 8 ||
                         x <= 0 ||
                         x > 8 ||
-                        parsedStrings.size() < 2
+                        parsedStrings.size() == 2
                 ) {
                     correctInput = false;
                 } else {
@@ -121,6 +134,21 @@ public class GameLauncher {
                 }
             }
             else correctInput = false;
+            if (cheatmode){
+                if (parsedStrings.size() == 4 &&
+                    parsedStrings.get(0).equals( "set")){
+                    int y =Character.getNumericValue(parsedStrings.get(1).charAt(0));
+                    int x= Character.getNumericValue(parsedStrings.get(2).charAt(0));
+                    String pezzo = parsedStrings.get(3);
+                    s.setPezzo(y,x,pezzo);
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "load")){
+                    s.createStandardChessboard();
+                    correctInput = true;
+                }
+            }
         }
     }
 }
