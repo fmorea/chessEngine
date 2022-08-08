@@ -3,6 +3,14 @@ package backend;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Questa classe fa il parsing dell'input dell'utente,
+ * L'utente deve infatti scrivere la posizione di origine e quella di
+ * destinazione del pezzo che vuole muovere.
+ * Si è cercato di rendere il più permissivo possibile il parsing dell'input,
+ * tale da rendere "piacevole" l'utilizzo della Command Line Interface
+ * (la gui sarà forse fatta solo successivamente).
+ */
 public class GameLauncher {
     private static Scacchiera s = new Scacchiera();
     public static void main(String[] args) throws InterruptedException {
@@ -25,17 +33,19 @@ public class GameLauncher {
                 System.out.println("Tocca al nero");
             }
             CommandPrompt.ask("Inserisci casella di origine e di destinazione\n" +
-                    "esempio: a2 a4\n" +
-                    "oppure: 12 14\n"
+                    "esempio sintassi ritenute corrette: \na2 a4\n" +
+                    "oppure: a2a4\n"+
+                    "oppure: 12 14\n"+
+                    "oppure: 1214\n"
                     ,"MOSSA: ");
 
             // ciclo while necessario perché l'input è non bloccante (non si sa mai che
-            // in futuro non si debbano utilizzare threads)
+            // in futuro non si debbano utilizzare threads ed un sistema "ad eventi")
             while (!CommandPrompt.inputLetto()){};
 
             ArrayList<String> parsedStrings =
                     new ArrayList<>(Arrays.asList(CommandPrompt.gotFromTerminal().split(" ")));
-            if(     parsedStrings.size() == 2 &&
+            if(     parsedStrings.size() >= 2 &&
                     parsedStrings.get(1)!=null &&
                     parsedStrings.get(0)!=null &&
                     !parsedStrings.get(0).isEmpty() &&
@@ -67,7 +77,43 @@ public class GameLauncher {
                         y > 8 ||
                         x <= 0 ||
                         x > 8 ||
-                        parsedStrings.size() != 2
+                        parsedStrings.size() < 2
+                ) {
+                    correctInput = false;
+                } else {
+                    hasMoved = s.move(y0, x0, y, x);
+                }
+            }
+            else if (parsedStrings.size() == 1 &&
+                    parsedStrings.get(0)!=null &&
+                    !parsedStrings.get(0).isEmpty()){
+                int x0 = parsedStrings.get(0).charAt(0) - 'a' + 1;
+                int y0 = Character.getNumericValue(parsedStrings.get(0).charAt(1));
+                int x = parsedStrings.get(0).charAt(2) - 'a' + 1;
+                int y = Character.getNumericValue(parsedStrings.get(0).charAt(3));
+
+                if (    y0 <= 0 ||
+                        y0 > 8 ||
+                        x0 <= 0 ||
+                        x0 > 8 ||
+                        y <= 0 ||
+                        y > 8 ||
+                        x <= 0 ||
+                        x > 8
+                ) {
+                    // Forse l'utente non ha utilizzato la notazione con la lettera ma quella con il numero?
+                    x0 = Character.getNumericValue(parsedStrings.get(0).charAt(0));
+                    x = Character.getNumericValue(parsedStrings.get(0).charAt(2));
+                }
+                if (    y0 <= 0 ||
+                        y0 > 8 ||
+                        x0 <= 0 ||
+                        x0 > 8 ||
+                        y <= 0 ||
+                        y > 8 ||
+                        x <= 0 ||
+                        x > 8 ||
+                        parsedStrings.size() != 1
                 ) {
                     correctInput = false;
                 } else {
@@ -75,9 +121,6 @@ public class GameLauncher {
                 }
             }
             else correctInput = false;
-
-
-
         }
     }
 }
