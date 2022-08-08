@@ -118,14 +118,14 @@ public class Scacchiera {
     }
 
     public void print(){
-        System.out.print("  a/1  ");
-        System.out.print("b/2  ");
-        System.out.print("c/3  ");
-        System.out.print("d/4  ");
-        System.out.print("e/5  ");
-        System.out.print("f/6  ");
-        System.out.print("g/7  ");
-        System.out.print("h/8  ");
+        System.out.print("  a||1 ");
+        System.out.print("b||2 ");
+        System.out.print("c||3 ");
+        System.out.print("d||4 ");
+        System.out.print("e||5 ");
+        System.out.print("f||6 ");
+        System.out.print("g||7 ");
+        System.out.print("h||8 ");
         System.out.println();
         for (int y=7;y>=0;y--){
             for (int x=0;x<8;x++){
@@ -152,14 +152,14 @@ public class Scacchiera {
             }
             System.out.println();
         }
-        System.out.print("  a/1  ");
-        System.out.print("b/2  ");
-        System.out.print("c/3  ");
-        System.out.print("d/4  ");
-        System.out.print("e/5  ");
-        System.out.print("f/6  ");
-        System.out.print("g/7  ");
-        System.out.print("h/8  ");
+        System.out.print("  a||1 ");
+        System.out.print("b||2 ");
+        System.out.print("c||3 ");
+        System.out.print("d||4 ");
+        System.out.print("e||5 ");
+        System.out.print("f||6 ");
+        System.out.print("g||7 ");
+        System.out.print("h||8 ");
         System.out.println();
         System.out.println();
         System.out.println();

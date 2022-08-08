@@ -15,8 +15,8 @@ public class GameLauncher {
         boolean hasMoved = true;
         boolean correctInput = true;
         boolean cheatmode = false;
-        CommandPrompt.ask("Premere un tasto per iniziare una nuova partita\n"
-                ,"*************************************************");
+        CommandPrompt.ask("Premere un tasto per iniziare una nuova partita"
+                ,"   *   *   *   *   *   *   *   *   *   *   ");
         while (!CommandPrompt.inputLetto()){};
         if (!CommandPrompt.gotFromTerminal().equals("cheat")){
             s.createStandardChessboard();
@@ -134,6 +134,10 @@ public class GameLauncher {
                 }
             }
             else correctInput = false;
+            if(parsedStrings.size() == 1 &&
+                    parsedStrings.get(0).equals( "cheat")){
+                cheatmode=true;
+            }
             if (cheatmode){
                 if (parsedStrings.size() == 4 &&
                     parsedStrings.get(0).equals( "set")){
@@ -146,6 +150,15 @@ public class GameLauncher {
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "load")){
                     s.createStandardChessboard();
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "reset")){
+                    for(int i=1;i<=8;i++){
+                        for(int j=1;j<=8;j++){
+                            s.setPezzo(i,j,null);
+                        }
+                    }
                     correctInput = true;
                 }
             }
