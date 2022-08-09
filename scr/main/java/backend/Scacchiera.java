@@ -1,5 +1,7 @@
 package backend;
 
+import java.util.ArrayList;
+
 /**
  * La scacchiera è una matrice di stringhe 8x8
  * Gli elementi della matrice sono in gergo scacchistico chiamate "case"
@@ -58,67 +60,29 @@ public class Scacchiera {
     }
 
     public void setPezzo(int y, int x, String pezzo) {
-        if (y <= 0 ||
-                y > 8 ||
-                x <= 0 ||
-                x > 8) {
+        if (!isInsideChessBoard(y,x)) {
             return;
         }
         this.matrix[y - 1][x - 1] = pezzo;
     }
 
     public void setPezzo(char c, int x, String pezzo) {
-        if (c != 'a' &&
-                c != 'b' &&
-                c != 'd' &&
-                c != 'e' &&
-                c != 'f' &&
-                c != 'g' &&
-                c != 'h') {
-            return;
-        }
-        int y;
-        switch (c) {
-            case 'a':
-                y = 1;
-                break;
-            case 'b':
-                y = 2;
-                break;
-            case 'c':
-                y = 3;
-                break;
-            case 'd':
-                y = 4;
-                break;
-            case 'e':
-                y = 5;
-                break;
-            case 'f':
-                y = 6;
-                break;
-            case 'g':
-                y = 7;
-                break;
-            case 'h':
-                y = 8;
-                break;
-            default:
-                y = 9;
-        }
-        this.setPezzo(y, x, pezzo);
+        int y = c - 'a' + 1;
+        setPezzo(y,x,pezzo);
     }
 
     public String getPezzo(int y, int x) {
-        if (    y <= 0 ||
-                y > 8  ||
-                x <= 0 ||
-                x > 8) {
+        if (!isInsideChessBoard(y,x)) {
             return "outOfBound";
         }
         return matrix[y - 1][x - 1];
     }
 
+    /**
+     * Funzione non interessante, solo di debug per printare la matrice
+     * Dovrà essere riscritta prima o poi utilizzando i metodi di alto
+     * livello "geTipoPezzo","getColorePezzo".
+     */
     public void print() {
         System.out.print("  a||1 ");
         System.out.print("b||2 ");
@@ -166,27 +130,20 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x) {
-        if (isEmpty(y0, x0) || // se la casella di partenza non è vuota
-                ((y0 == y) && (y == x)) ||  // se la casella di partenza è diversa da quella di destinazione
-                (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
-                (toccaAlNero() && isBianco(y0, x0)) ||
-                !this.isLegalMove(y0, x0, y, x)
-        ) {
-            return false;
-        } else {
             forceMove(y0, x0, y, x);
             if (!lockTurn) {
                 toccaAlBianco = !toccaAlBianco;
             }
             return true;
-        }
     }
 
     public void forceMove(int y0, int x0, int y, int x) {
-        String temp = this.getPezzo(y0, x0);
-        this.setPezzo(y0, x0, null);
-        this.setPezzo(y, x, temp);
-    }
+        if(isInsideChessBoard(y0,x0,y,x)) {
+            String temp = this.getPezzo(y0, x0);
+            this.setPezzo(y0, x0, null);
+            this.setPezzo(y, x, temp);
+            }
+        }
 
     public char getTipoPezzo(int y, int x) {
         if (this.getPezzo(y, x) != null) {
@@ -282,13 +239,16 @@ public class Scacchiera {
         } else return false;
     }
 
-    private boolean isLegalMove(int y0, int x0, int y, int x) {
-        if(     !isInsideChessBoard(y0) ||
-                !isInsideChessBoard(x0) ||
-                !isInsideChessBoard(y)  ||
-                !isInsideChessBoard(x) ){
+    public boolean isLegalMove(int y0, int x0, int y, int x) {
+        if (    !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
+                isEmpty(y0, x0) || // se la casella di partenza è vuota
+                ((y0 == y) && (y == x)) ||  // se la casella di partenza è uguale a quella di destinazione
+                (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
+                (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
+        ) {
             return false;
         }
+
         boolean isLegalMove = false;
         switch (getTipoPezzo(y0, x0)) {
             case 'p': // pedina
@@ -441,14 +401,65 @@ public class Scacchiera {
                     }
                 }
                 break;
+            case 'r':
+                // esiste una mossa dell'avversario tale che "può mangiare" il re?
+                // esecuzione speculativa
+                //FOR ALL MOVES OF !myColor
+                //IF AFTER {FOR ALL CELL THERE IS NOT REB}
+                break;
             default: //un pezzo non riconosciuto può fare quello che vuole
                 isLegalMove = true;
         }
         return isLegalMove;
     }
 
-    private boolean isInsideChessBoard(int w) {
+    public ArrayList<PosizioneSpeculativa> validMoves(){
+        PosizioneSpeculativa toTest = null;
+        ArrayList<PosizioneSpeculativa> toReturn= new ArrayList<>();
+
+        for (int i=1; i<=8;i++){
+            for (int j=1; j<=8;j++){
+                for (int k=1; k<=8;k++){
+                    for (int l=1; l<=8;l++){
+                        if (isLegalMove(i,j,k,l)){
+                            toTest = new PosizioneSpeculativa();
+                            toTest.set(i,j,k,l);
+                            toReturn.add(toTest);
+                        }
+                    }
+                }
+            }
+        }
+        return toReturn;
+    }
+
+
+    public boolean isInsideChessBoard(int w) {
         if (w <= 0 || w > 8) {
+            return false;
+        } else return true;
+    }
+
+    public boolean isInsideChessBoard(int w,int e) {
+        if (    w <= 0 || w > 8 ||
+                e <= 0 || e > 8 ) {
+            return false;
+        } else return true;
+    }
+
+    public boolean isInsideChessBoard(int w,int e, int r) {
+        if (    w <= 0 || w > 8 ||
+                e <= 0 || e > 8 ||
+                r <= 0 || r > 8) {
+            return false;
+        } else return true;
+    }
+
+    public boolean isInsideChessBoard(int w,int e, int r, int t) {
+        if (    w <= 0 || w > 8 ||
+                e <= 0 || e > 8 ||
+                r <= 0 || r > 8 ||
+                t <= 0 || t > 8) {
             return false;
         } else return true;
     }
@@ -464,5 +475,9 @@ public class Scacchiera {
 
     public void lockTurn() {
         lockTurn = !lockTurn;
+    }
+
+    public void jumpTurn(){
+        toccaAlBianco = !toccaAlBianco;
     }
 }

@@ -166,6 +166,16 @@ public class GameLauncher {
                     s.lockTurn();
                     correctInput = true;
                 }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "legals")){
+                    System.out.println(s.validMoves().toString());
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "jumpturn")){
+                    s.jumpTurn();
+                    correctInput = true;
+                }
             }
         }
     }
