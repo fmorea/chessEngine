@@ -401,6 +401,25 @@ public class Scacchiera {
 
                 }
                 break;
+            case 'd':
+                String donna = getPezzo(y0,x0);
+                String backup = donna;
+                // la mossa è fattibile da una torre?
+                donna = donna.replace('d', 't');
+                setPezzo(y0, x0, donna);
+                if (isLegalMove(y0,x0,y,x)){
+                    setPezzo(y0,x0,backup);
+                    return true;
+                }
+                // la mossa è fattibile da un'alfiere?
+                donna = donna.replace('t', 'a');
+                setPezzo(y0, x0, donna);
+                if (isLegalMove(y0,x0,y,x)){
+                    setPezzo(y0,x0,backup);
+                    return true;
+                }
+                setPezzo(y0,x0,backup);
+                    break;
             default:
                 isLegalMove = true; // debug purposes
         }
