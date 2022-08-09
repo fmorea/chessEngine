@@ -17,6 +17,9 @@ public class Scacchiera {
     private boolean toccaAlBianco = true;
     private boolean lockTurn = false;
 
+    private String promotionB="donB";
+    private String promotionN="donN";
+
     public Scacchiera() {
         this.matrix = new String[8][8];
     }
@@ -138,6 +141,14 @@ public class Scacchiera {
     }
 
     public void forceMove(int y0, int x0, int y, int x) {
+        // fix promozione del pedone
+        if(y0 == 7 && y == 8 && getTipoPezzo(y0,x0) == 'p'){
+            if(toccaAlBianco()){
+                this.setPezzo(y0,x0,promotionB);
+            }
+            else this.setPezzo(y0,x0,promotionN);
+        }
+
         if(isInsideChessBoard(y0,x0,y,x)) {
             String temp = this.getPezzo(y0, x0);
             this.setPezzo(y0, x0, null);
@@ -479,5 +490,14 @@ public class Scacchiera {
 
     public void jumpTurn(){
         toccaAlBianco = !toccaAlBianco;
+    }
+
+    public void promotion(String s) {
+        if(toccaAlBianco()){
+            promotionB=s;
+        }
+        else {
+            promotionN=s;
+        }
     }
 }

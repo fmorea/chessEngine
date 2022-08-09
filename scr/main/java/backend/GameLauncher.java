@@ -15,6 +15,9 @@ public class GameLauncher {
         boolean hasMoved = true;
         boolean correctInput = true;
         boolean cheatmode = false;
+        System.out.println("Per personalizzare il pezzo in caso di promozione del pedone\n" +
+                "lo si puo' fare in qualsiasi momento, scrivendo promotion seguito dal tipo di pezzo\n" +
+                "altrimenti e' attivata automaticamente la promozione a donna\n");
         CommandPrompt.ask("Premere un tasto per iniziare una nuova partita"
                 ,"   *   *   *   *   *   *   *   *   *   *   ");
         while (!CommandPrompt.inputLetto()){};
@@ -137,6 +140,11 @@ public class GameLauncher {
             if(parsedStrings.size() == 1 &&
                     parsedStrings.get(0).equals( "cheat")){
                 cheatmode=true;
+            }
+            if(parsedStrings.size() == 2 &&
+                    parsedStrings.get(0).equals( "promotion")){
+                s.promotion(parsedStrings.get(1));
+                correctInput = true;
             }
             if (cheatmode){
                 if (parsedStrings.size() == 4 &&
