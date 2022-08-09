@@ -283,6 +283,12 @@ public class Scacchiera {
     }
 
     private boolean isLegalMove(int y0, int x0, int y, int x) {
+        if(     !isInsideChessBoard(y0) ||
+                !isInsideChessBoard(x0) ||
+                !isInsideChessBoard(y)  ||
+                !isInsideChessBoard(x) ){
+            return false;
+        }
         boolean isLegalMove = false;
         switch (getTipoPezzo(y0, x0)) {
             case 'p': // pedina
@@ -420,8 +426,23 @@ public class Scacchiera {
                 }
                 setPezzo(y0,x0,backup);
                     break;
-            default:
-                isLegalMove = true; // debug purposes
+            case 'c':
+                if(     (y == y0 + 2 && x == x0 + 1) ||
+                        (y == y0 + 1 && x == x0 + 2) ||
+                        (y == y0 - 2 && x == x0 - 1) ||
+                        (y == y0 - 1 && x == x0 - 2) ||
+                        (y == y0 - 2 && x == x0 + 1) ||
+                        (y == y0 - 1 && x == x0 + 2) ||
+                        (y == y0 + 2 && x == x0 - 1) ||
+                        (y == y0 + 1 && x == x0 - 2) ){
+                    if((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
+                            isEmpty(y, x)){
+                        isLegalMove = true;
+                    }
+                }
+                break;
+            default: //un pezzo non riconosciuto può fare quello che vuole
+                isLegalMove = true;
         }
         return isLegalMove;
     }
