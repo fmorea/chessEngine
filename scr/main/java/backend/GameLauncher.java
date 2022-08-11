@@ -184,6 +184,15 @@ public class GameLauncher {
                     s.jumpTurn();
                     correctInput = true;
                 }
+                if(parsedStrings.size() == 5 &&
+                        parsedStrings.get(0).equals( "islegal")){
+                    int x0 =Character.getNumericValue(parsedStrings.get(1).charAt(0));
+                    int y0= Character.getNumericValue(parsedStrings.get(2).charAt(0));
+                    int x =Character.getNumericValue(parsedStrings.get(3).charAt(0));
+                    int y= Character.getNumericValue(parsedStrings.get(4).charAt(0));
+                    System.out.println(s.isLegalMove(y0,x0,y,x));
+                    correctInput = true;
+                }
             }
         }
     }
