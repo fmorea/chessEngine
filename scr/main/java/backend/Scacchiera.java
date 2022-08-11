@@ -418,10 +418,35 @@ public class Scacchiera {
                 }
                 break;
             case 'r':
-                // esiste una mossa dell'avversario tale che "può mangiare" il re?
-                // esecuzione speculativa
-                //FOR ALL MOVES OF !myColor
-                //IF AFTER {FOR ALL CELL THERE IS NOT REB}
+                // il re non si puo' mai mettere sotto scacco
+                String backupRe = getPezzo(y0,x0);
+                setPezzo(y0,x0,null);
+                jumpTurn();
+
+                ArrayList<Movement> positions = validMoves();
+                boolean isACheckedPosition = false;
+                for (Movement mov : positions){
+                    if (mov.getX() == x && mov.getY() == y){
+                        isACheckedPosition = true;
+                    }
+                }
+                jumpTurn();
+                setPezzo(y0,x0,backupRe);
+
+                // Occorre verificare se il re si vuole muovere "nelle vicinanze"
+                if(     (y == y0 + 1 && x == x0 + 0) ||
+                        (y == y0 + 0 && x == x0 + 1) ||
+                        (y == y0 - 1 && x == x0 + 0) ||
+                        (y == y0 + 0 && x == x0 - 1) ||
+                        (y == y0 + 1 && x == x0 + 1) ||
+                        (y == y0 - 1 && x == x0 + 1) ||
+                        (y == y0 + 1 && x == x0 - 1) ||
+                        (y == y0 - 1 && x == x0 - 1) ){
+                    if((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
+                            isEmpty(y, x)){
+                        isLegalMove = true;
+                    }
+                }
                 break;
             default: //un pezzo non riconosciuto può fare quello che vuole
                 isLegalMove = true;
@@ -429,16 +454,16 @@ public class Scacchiera {
         return isLegalMove;
     }
 
-    public ArrayList<PosizioneSpeculativa> validMoves(){
-        PosizioneSpeculativa toTest = null;
-        ArrayList<PosizioneSpeculativa> toReturn= new ArrayList<>();
+    public ArrayList<Movement> validMoves(){
+        Movement toTest = null;
+        ArrayList<Movement> toReturn= new ArrayList<>();
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
                 for (int k=1; k<=8;k++){
                     for (int l=1; l<=8;l++){
                         if (isLegalMove(i,j,k,l)){
-                            toTest = new PosizioneSpeculativa();
+                            toTest = new Movement();
                             toTest.set(i,j,k,l);
                             toReturn.add(toTest);
                         }

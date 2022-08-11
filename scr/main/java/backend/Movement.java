@@ -1,6 +1,6 @@
 package backend;
 
-public class PosizioneSpeculativa {
+public class Movement {
     private int x;
     private int y;
 
@@ -13,9 +13,26 @@ public class PosizioneSpeculativa {
         this.x = x;
         this.y0 = y0;
     }
+
+    public int getX0() {
+        return x0;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public int getY0() {
+        return y0;
+    }
+
     // Overriding toString() method of String class
     @Override
     public String toString() {
-        return "{ ["+x0+","+y0+"]>>["+x+","+y+"] }\n";
+        return "["+x0+","+y0+"] --> ["+x+","+y+"]\n";
     }
 }
