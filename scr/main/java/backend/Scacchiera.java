@@ -253,7 +253,7 @@ public class Scacchiera {
     public boolean isLegalMove(int y0, int x0, int y, int x) {
         if (    !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
                 isEmpty(y0, x0) || // se la casella di partenza è vuota
-                ((y0 == y) && (y == x)) ||  // se la casella di partenza è uguale a quella di destinazione
+                ((y0 == y) && (x0 == x)) ||  // se la casella di partenza è uguale a quella di destinazione
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
                 (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
         ) {
@@ -442,14 +442,15 @@ public class Scacchiera {
                         (y == y0 - 1 && x == x0 + 1) ||
                         (y == y0 + 1 && x == x0 - 1) ||
                         (y == y0 - 1 && x == x0 - 1) ){
-                    if((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
-                            isEmpty(y, x)){
+                    if(((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) || isEmpty(y, x))
+                            &&
+                            !isACheckedPosition){
                         isLegalMove = true;
                     }
                 }
                 break;
-            default: //un pezzo non riconosciuto può fare quello che vuole
-                isLegalMove = true;
+            default:
+                isLegalMove = false;
         }
         return isLegalMove;
     }
