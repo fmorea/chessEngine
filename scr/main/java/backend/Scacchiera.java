@@ -339,9 +339,9 @@ public class Scacchiera {
                 if ((m == 1 || m == -1) && // i due pezzi sono allineati in diagonale
                         ((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
                                 isEmpty(y, x))) {
-                    System.out.println("Slope: " + m);
+                    //System.out.println("Slope: " + m);
                     int dist = (int) Math.ceil(Math.abs(Math.sqrt(Math.pow(x0 - x, 2) + Math.pow(y0 - y, 2))) / Math.sqrt(2));
-                    System.out.println("Distance between the 2 points = " + dist);
+                    //System.out.println("Distance between the 2 points = " + dist);
                     int min = Math.min(y0, y);
                     int x_del_min;
                     if (min == y0) {
@@ -355,12 +355,12 @@ public class Scacchiera {
                         for (int i = 1; i < dist; i++) {
                             xx = xx + 1;
                             yy = yy + 1;
-                            System.out.println("Checking emptiness of (" + xx + "," + yy+")");
+                            //System.out.println("Checking emptiness of (" + xx + "," + yy+")");
                             if (!isEmpty(xx, yy)) {
                                 pieceInTheMiddle = true;
-                                System.out.println("not empty");
+                                //System.out.println("not empty");
                             } else {
-                                System.out.println("empty");
+                                //System.out.println("empty");
                             }
                         }
                         isLegalMove = !pieceInTheMiddle;
@@ -370,12 +370,12 @@ public class Scacchiera {
                         for (int i = 1; i < dist; i++) {
                             xx = xx - 1;
                             yy = yy + 1;
-                            System.out.println("Checking emptiness of (" + xx + "," + yy+")");
+                            //System.out.println("Checking emptiness of (" + xx + "," + yy+")");
                             if (!isEmpty(xx, yy)) {
                                 pieceInTheMiddle = true;
-                                System.out.println("not empty");
+                                //System.out.println("not empty");
                             } else {
-                                System.out.println("empty");
+                                //System.out.println("empty");
                             }
                         }
                         isLegalMove = !pieceInTheMiddle;

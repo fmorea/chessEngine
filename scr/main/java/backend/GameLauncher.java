@@ -11,7 +11,6 @@ import java.util.Arrays;
 public class GameLauncher {
     private static Scacchiera s = new Scacchiera();
     public static void main(String[] args) throws InterruptedException {
-        boolean end = false;
         boolean hasMoved = true;
         boolean correctInput = true;
         boolean cheatmode = false;
@@ -28,7 +27,7 @@ public class GameLauncher {
             cheatmode = true;
             System.out.println("Welcome Man");
         }
-        while(!end){
+        while(!s.validMoves().isEmpty() || cheatmode){
             s.print();
             if(!hasMoved){
                 System.out.println("Mossa precedente non legale");
@@ -52,7 +51,13 @@ public class GameLauncher {
                         , "MOSSA: ");
             }
             else{
-                CommandPrompt.ask("","COMMAND:");
+                if(s.validMoves().isEmpty()){
+                    CommandPrompt.ask("LA PARTITA E' FINITA","DEBUG_CMD:");
+                }
+                else{
+                    CommandPrompt.ask("Developer Mode Enabled","COMANDO:");
+                }
+
             }
 
             // ciclo while necessario perché l'input è non bloccante (non si sa mai che
@@ -192,8 +197,14 @@ public class GameLauncher {
                     int y= Character.getNumericValue(parsedStrings.get(4).charAt(0));
                     System.out.println(s.isLegalMove(y0,x0,y,x));
                     correctInput = true;
+
                 }
+
+            }
+            if(s.validMoves().isEmpty()){
+                System.out.println("La partita è finita");
             }
         }
+
     }
 }
