@@ -27,7 +27,8 @@ public class GameLauncher {
             cheatmode = true;
             System.out.println("Welcome Man");
         }
-        while(!s.validMoves().isEmpty() || cheatmode){
+
+        while(cheatmode || !s.validMoves().isEmpty()){
             s.print();
             if(!hasMoved){
                 System.out.println("Mossa precedente non legale");
@@ -51,12 +52,7 @@ public class GameLauncher {
                         , "MOSSA: ");
             }
             else{
-                if(s.validMoves().isEmpty()){
-                    CommandPrompt.ask("LA PARTITA E' FINITA","DEBUG_CMD:");
-                }
-                else{
-                    CommandPrompt.ask("Developer Mode Enabled","COMANDO:");
-                }
+                CommandPrompt.ask("","");
 
             }
 
@@ -185,6 +181,11 @@ public class GameLauncher {
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "numoflegals")){
+                    System.out.println(s.validMoves().size());
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "jumpturn")){
                     s.jumpTurn();
                     correctInput = true;
@@ -201,7 +202,8 @@ public class GameLauncher {
                 }
 
             }
-            if(s.validMoves().isEmpty()){
+
+            if(!cheatmode && s.validMoves().isEmpty()){
                 System.out.println("La partita è finita");
             }
         }
