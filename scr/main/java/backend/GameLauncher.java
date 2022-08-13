@@ -190,6 +190,11 @@ public class GameLauncher {
                     s.jumpTurn();
                     correctInput = true;
                 }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "check")){
+                    System.out.println(s.inCheck());
+                    correctInput = true;
+                }
                 if(parsedStrings.size() == 5 &&
                         parsedStrings.get(0).equals( "islegal")){
                     int x0 =Character.getNumericValue(parsedStrings.get(1).charAt(0));

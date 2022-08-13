@@ -133,11 +133,14 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x) {
+            if (isLegalMove(y0,x0,y,x)) {
             forceMove(y0, x0, y, x);
             if (!lockTurn) {
                 toccaAlBianco = !toccaAlBianco;
             }
             return true;
+        }
+         else return false;
     }
 
     public void forceMove(int y0, int x0, int y, int x) {
@@ -250,6 +253,30 @@ public class Scacchiera {
         } else return false;
     }
 
+    public boolean inCheck(){
+        for(int x=1; x<=8; x++){
+            for(int y=1; y<=8; y++){
+                if(getTipoPezzo(y,x) == 'r'){
+                    if((getColorePezzo(y,x)=='B' && toccaAlBianco()) ||
+                       (getColorePezzo(y,x)=='N' && toccaAlNero())){
+                        String backupRe = getPezzo(y,x);
+                        setPezzo(y,x,null);
+                        jumpTurn();
+                        ArrayList<Movement> positions = validMoves();
+                        jumpTurn();
+                        setPezzo(y,x,backupRe);
+                        for (Movement mov : positions){
+                            if (mov.getX() == x && mov.getY() == y){
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     public boolean isLegalMove(int y0, int x0, int y, int x) {
         if (    !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
                 isEmpty(y0, x0) || // se la casella di partenza è vuota
@@ -257,6 +284,10 @@ public class Scacchiera {
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
                 (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
         ) {
+            return false;
+        }
+
+        if (inCheck() && getTipoPezzo(y0,x0)!= 'r'){
             return false;
         }
 
