@@ -137,7 +137,7 @@ public class GameLogic {
     public boolean move(int y0, int x0, int y, int x) {
         Movement toCheck = new Movement();
         toCheck.set(y0,x0,y,x);
-        if (legalMoves.contains(toCheck)) {
+        if (getLegalMoves().contains(toCheck)) {
             forceMove(y0, x0, y, x);
             if (!lockTurn) {
                 toccaAlBianco = !toccaAlBianco;
