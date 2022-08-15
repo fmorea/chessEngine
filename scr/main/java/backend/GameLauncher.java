@@ -94,8 +94,7 @@ public class GameLauncher {
                         y <= 0 ||
                         y > 8 ||
                         x <= 0 ||
-                        x > 8 ||
-                        parsedStrings.size() == 2
+                        x > 8
                 ) {
                     correctInput = false;
                 } else {

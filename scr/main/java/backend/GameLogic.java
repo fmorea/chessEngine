@@ -510,13 +510,17 @@ public class GameLogic {
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
-                if(!isEmpty(i,j) && !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
+                if(     !isEmpty(i,j) &&
+                        !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
                     for (int k = 1; k <= 8; k++) {
                         for (int l = 1; l <= 8; l++) {
-                            if (isLegalMove(i, j, k, l)) {
-                                toTest = new Movement();
-                                toTest.set(i, j, k, l);
-                                legalMoves.add(toTest);
+                            if((getTipoPezzo(i,j) == 'p' && (l == j || l == j+1 || l == j-1 )) ||
+                                getTipoPezzo(i,j) != 'p') {
+                                if (isLegalMove(i, j, k, l)) {
+                                    toTest = new Movement();
+                                    toTest.set(i, j, k, l);
+                                    legalMoves.add(toTest);
+                                }
                             }
                         }
                     }
