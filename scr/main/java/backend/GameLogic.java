@@ -143,6 +143,7 @@ public class GameLogic {
                 toccaAlBianco = !toccaAlBianco;
             }
             updateLegalMoves();
+            print();
             return true;
         }
         else return false;
@@ -161,8 +162,8 @@ public class GameLogic {
             String temp = this.getPezzo(y0, x0);
             this.setPezzo(y0, x0, null);
             this.setPezzo(y, x, temp);
-            }
         }
+    }
 
     public char getTipoPezzo(int y, int x) {
         if (this.getPezzo(y, x) != null) {
@@ -263,7 +264,7 @@ public class GameLogic {
             for(int y=1; y<=8; y++){
                 if(getTipoPezzo(y,x) == 'r'){
                     if((getColorePezzo(y,x)=='B' && toccaAlBianco()) ||
-                       (getColorePezzo(y,x)=='N' && toccaAlNero())){
+                            (getColorePezzo(y,x)=='N' && toccaAlNero())){
                         String backupRe = getPezzo(y,x);
                         setPezzo(y,x,null);
                         jumpTurn();
@@ -290,16 +291,16 @@ public class GameLogic {
     }
 
     public boolean isLegalMove(int y0, int x0, int y, int x){
-        if (respectPieceLogic(y0,x0,y,x) && !isInCheck(y0,x0)){
+        if (pseudoLegalMove(y0,x0,y,x) && !isInCheck(y0,x0)){
             return true;
         }
         else return false;
     }
 
 
-    public boolean respectPieceLogic(int y0, int x0, int y, int x) {
-        if (    !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
-                isEmpty(y0, x0) || // se la casella di partenza è vuota
+    public boolean pseudoLegalMove(int y0, int x0, int y, int x) {
+        if (    isEmpty(y0, x0) || // se la casella di partenza è vuota
+                !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
                 ((y0 == y) && (x0 == x)) ||  // se la casella di partenza è uguale a quella di destinazione
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
                 (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
@@ -448,7 +449,7 @@ public class GameLogic {
                     return true;
                 }
                 setPezzo(y0,x0,backup);
-                    break;
+                break;
             case 'c':
                 if(     (y == y0 + 2 && x == x0 + 1) ||
                         (y == y0 + 1 && x == x0 + 2) ||
@@ -503,17 +504,20 @@ public class GameLogic {
     }
 
     public ArrayList<Movement> validMoves(){
+
         Movement toTest = null;
         ArrayList legalMoves= new ArrayList<>();
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
-                for (int k=1; k<=8;k++){
-                    for (int l=1; l<=8;l++){
-                        if (isLegalMove(i,j,k,l)){
-                            toTest = new Movement();
-                            toTest.set(i,j,k,l);
-                            legalMoves.add(toTest);
+                if(!isEmpty(i,j) && !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
+                    for (int k = 1; k <= 8; k++) {
+                        for (int l = 1; l <= 8; l++) {
+                            if (isLegalMove(i, j, k, l)) {
+                                toTest = new Movement();
+                                toTest.set(i, j, k, l);
+                                legalMoves.add(toTest);
+                            }
                         }
                     }
                 }
@@ -525,10 +529,6 @@ public class GameLogic {
     public void updateLegalMoves(){
         this.legalMoves = validMoves();
     }
-
-
-
-
 
     public boolean isInsideChessBoard(int w) {
         if (w <= 0 || w > 8) {

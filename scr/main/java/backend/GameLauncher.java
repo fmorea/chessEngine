@@ -28,8 +28,9 @@ public class GameLauncher {
             System.out.println("Welcome Man");
         }
 
+        s.print();
         while(cheatmode || !s.validMoves().isEmpty()){
-            s.print();
+
             if(!hasMoved){
                 System.out.println("Mossa precedente non legale");
             }
@@ -159,6 +160,7 @@ public class GameLauncher {
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "load")){
                     s.createStandardChessboard();
+                    s.print();
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
