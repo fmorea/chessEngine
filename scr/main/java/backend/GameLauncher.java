@@ -9,7 +9,7 @@ import java.util.Arrays;
  * destinazione del pezzo che vuole muovere.
  */
 public class GameLauncher {
-    private static Scacchiera s = new Scacchiera();
+    private static GameLogic s = new GameLogic();
     public static void main(String[] args) throws InterruptedException {
         boolean hasMoved = true;
         boolean correctInput = true;
@@ -177,12 +177,12 @@ public class GameLauncher {
                 }
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "legals")){
-                    System.out.println(s.validMoves().toString());
+                    System.out.println(s.getLegalMoves().toString());
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "numoflegals")){
-                    System.out.println(s.validMoves().size());
+                    System.out.println(s.getLegalMoves().size());
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
@@ -192,7 +192,7 @@ public class GameLauncher {
                 }
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "check")){
-                    System.out.println(s.inCheck());
+                    System.out.println(s.isInCheck());
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 5 &&

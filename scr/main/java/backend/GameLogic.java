@@ -12,15 +12,16 @@ import java.util.ArrayList;
  * la prima lettera rappresenta il nome del pezzo in italiano (p,d,t,a,c)
  * le rimanenti 2 lettere centrali del nome possono essere utilizzate come meta-dati in casi particolari
  */
-public class Scacchiera {
+public class GameLogic {
     private String[][] matrix;
     private boolean toccaAlBianco = true;
     private boolean lockTurn = false;
 
     private String promotionB="donB";
     private String promotionN="donN";
+    private ArrayList<Movement> legalMoves;
 
-    public Scacchiera() {
+    public GameLogic() {
         this.matrix = new String[8][8];
     }
 
@@ -60,6 +61,7 @@ public class Scacchiera {
         this.setPezzo(8, 6, "alfN");
         this.setPezzo(8, 4, "donN");
         this.setPezzo(8, 5, "re_N");
+        updateLegalMoves();
     }
 
     public void setPezzo(int y, int x, String pezzo) {
@@ -133,14 +135,17 @@ public class Scacchiera {
     }
 
     public boolean move(int y0, int x0, int y, int x) {
-            if (isLegalMove(y0,x0,y,x)) {
+        Movement toCheck = new Movement();
+        toCheck.set(y0,x0,y,x);
+        if (legalMoves.contains(toCheck)) {
             forceMove(y0, x0, y, x);
             if (!lockTurn) {
                 toccaAlBianco = !toccaAlBianco;
             }
+            updateLegalMoves();
             return true;
         }
-         else return false;
+        else return false;
     }
 
     public void forceMove(int y0, int x0, int y, int x) {
@@ -253,7 +258,7 @@ public class Scacchiera {
         } else return false;
     }
 
-    public boolean inCheck(){
+    public boolean isInCheck(){
         for(int x=1; x<=8; x++){
             for(int y=1; y<=8; y++){
                 if(getTipoPezzo(y,x) == 'r'){
@@ -277,17 +282,28 @@ public class Scacchiera {
         return false;
     }
 
-    public boolean isLegalMove(int y0, int x0, int y, int x) {
+    public boolean isInCheck(int y0, int x0){
+        if (getTipoPezzo(y0,x0)!= 'r' && isInCheck()){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isLegalMove(int y0, int x0, int y, int x){
+        if (respectPieceLogic(y0,x0,y,x) && !isInCheck(y0,x0)){
+            return true;
+        }
+        else return false;
+    }
+
+
+    public boolean respectPieceLogic(int y0, int x0, int y, int x) {
         if (    !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
                 isEmpty(y0, x0) || // se la casella di partenza è vuota
                 ((y0 == y) && (x0 == x)) ||  // se la casella di partenza è uguale a quella di destinazione
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
                 (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
         ) {
-            return false;
-        }
-
-        if (inCheck() && getTipoPezzo(y0,x0)!= 'r'){
             return false;
         }
 
@@ -370,9 +386,9 @@ public class Scacchiera {
                 if ((m == 1 || m == -1) && // i due pezzi sono allineati in diagonale
                         ((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
                                 isEmpty(y, x))) {
-                    System.out.println("Slope: " + m);
+                    //System.out.println("Slope: " + m);
                     int dist = (int) Math.ceil(Math.abs(Math.sqrt(Math.pow(x0 - x, 2) + Math.pow(y0 - y, 2))) / Math.sqrt(2));
-                    System.out.println("Distance between the 2 points = " + dist);
+                    //System.out.println("Distance between the 2 points = " + dist);
                     int min = Math.min(y0, y);
                     int x_del_min;
                     if (min == y0) {
@@ -386,12 +402,12 @@ public class Scacchiera {
                         for (int i = 1; i < dist; i++) {
                             xx = xx + 1;
                             yy = yy + 1;
-                            System.out.println("Checking emptiness of (" + xx + "," + yy+")");
+                            //System.out.println("Checking emptiness of (" + xx + "," + yy+")");
                             if (!isEmpty(yy, xx)) {
                                 pieceInTheMiddle = true;
-                                System.out.println("not empty");
+                                //System.out.println("not empty");
                             } else {
-                                System.out.println("empty");
+                                //System.out.println("empty");
                             }
                         }
                         isLegalMove = !pieceInTheMiddle;
@@ -401,12 +417,12 @@ public class Scacchiera {
                         for (int i = 1; i < dist; i++) {
                             xx = xx - 1;
                             yy = yy + 1;
-                            System.out.println("Checking emptiness of (" + xx + "," + yy+")");
+                            //System.out.println("Checking emptiness of (" + xx + "," + yy+")");
                             if (!isEmpty(yy, xx)) {
                                 pieceInTheMiddle = true;
-                                System.out.println("not empty");
+                                //System.out.println("not empty");
                             } else {
-                                System.out.println("empty");
+                                //System.out.println("empty");
                             }
                         }
                         isLegalMove = !pieceInTheMiddle;
@@ -488,7 +504,7 @@ public class Scacchiera {
 
     public ArrayList<Movement> validMoves(){
         Movement toTest = null;
-        ArrayList<Movement> toReturn= new ArrayList<>();
+        ArrayList legalMoves= new ArrayList<>();
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
@@ -497,14 +513,21 @@ public class Scacchiera {
                         if (isLegalMove(i,j,k,l)){
                             toTest = new Movement();
                             toTest.set(i,j,k,l);
-                            toReturn.add(toTest);
+                            legalMoves.add(toTest);
                         }
                     }
                 }
             }
         }
-        return toReturn;
+        return legalMoves;
     }
+
+    public void updateLegalMoves(){
+        this.legalMoves = validMoves();
+    }
+
+
+
 
 
     public boolean isInsideChessBoard(int w) {
@@ -561,5 +584,9 @@ public class Scacchiera {
         else {
             promotionN=s;
         }
+    }
+
+    public ArrayList<Movement> getLegalMoves() {
+        return legalMoves;
     }
 }
