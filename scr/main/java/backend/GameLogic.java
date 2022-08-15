@@ -303,7 +303,9 @@ public class GameLogic {
                 !isInsideChessBoard(y0,x0,y,x) || //se i numeri inseriti non sono validi
                 ((y0 == y) && (x0 == x)) ||  // se la casella di partenza è uguale a quella di destinazione
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
-                (toccaAlNero() && isBianco(y0, x0))  // rispetto al colore del turno corrente
+                (toccaAlNero() && isBianco(y0, x0))  ||
+                (getTipoPezzo(y0,x0) == 'p' && !(x == x0 || x == x0+1 || x == x0-1 )) // rispetto al colore del turno corrente
+
         ) {
             return false;
         }
@@ -510,17 +512,13 @@ public class GameLogic {
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
-                if(     !isEmpty(i,j) &&
-                        !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
+                if(!isEmpty(i,j) && !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
                     for (int k = 1; k <= 8; k++) {
                         for (int l = 1; l <= 8; l++) {
-                            if((getTipoPezzo(i,j) == 'p' && (l == j || l == j+1 || l == j-1 )) ||
-                                getTipoPezzo(i,j) != 'p') {
-                                if (isLegalMove(i, j, k, l)) {
-                                    toTest = new Movement();
-                                    toTest.set(i, j, k, l);
-                                    legalMoves.add(toTest);
-                                }
+                            if (isLegalMove(i, j, k, l)) {
+                                toTest = new Movement();
+                                toTest.set(i, j, k, l);
+                                legalMoves.add(toTest);
                             }
                         }
                     }
