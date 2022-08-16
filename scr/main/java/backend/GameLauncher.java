@@ -154,6 +154,7 @@ public class GameLauncher {
                     int y= Character.getNumericValue(parsedStrings.get(2).charAt(0));
                     String pezzo = parsedStrings.get(3);
                     s.setPezzo(y,x,pezzo);
+                    s.updateLegalMoves();
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
@@ -168,6 +169,8 @@ public class GameLauncher {
                         for(int j=1;j<=8;j++){
                             s.setPezzo(i,j,null);
                         }
+                        s.updateLegalMoves();
+                        s.print();
                     }
                     correctInput = true;
                 }
@@ -189,6 +192,7 @@ public class GameLauncher {
                 if(parsedStrings.size() == 1 &&
                         parsedStrings.get(0).equals( "jumpturn")){
                     s.jumpTurn();
+                    s.updateLegalMoves();
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
