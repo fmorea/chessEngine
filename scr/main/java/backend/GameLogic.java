@@ -290,11 +290,13 @@ public class GameLogic {
                 ((y0 == y) && (x0 == x)) ||  // se la casella di partenza è uguale a quella di destinazione
                 (toccaAlBianco() && isNero(y0, x0)) || // se vuoi muovere un pezzo di colore diverso
                 (toccaAlNero() && isBianco(y0, x0))  || // rispetto al colore del turno corrente
-                (getTipoPezzo(y0,x0) == 'p' && !(x == x0 || x == x0+1 || x == x0-1 )) ||
+                // condizioni per scartare subito un mucchio di caselle
+                (getTipoPezzo(y0,x0) == 'p' && !(x == x0 || x == x0+1 || x == x0-1 || y > y0+2 || y<y0-2)) ||
                 (getTipoPezzo(y0,x0) == 'r' && !(x<=x0+1 && y<=y0+1 && x>=x0-1 && y>=y0-1)) ||
                 (getTipoPezzo(y0,x0) == 't' && !(x == x0 || y == y0) ||
-                (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)))
-
+                        (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)) ||
+                        (getTipoPezzo(y0,x0) == 'a' && (y == y0 || x == x0)) ||
+                        (getTipoPezzo(y0,x0) == 'c' && (x > x0 + 3 || x < x0 - 3 || y > y0 + 3 || y < y0 - 3)) )
         ) {
             return false;
         }
@@ -495,7 +497,7 @@ public class GameLogic {
     }
 
     public ArrayList<Movement> validMoves(){
-
+        long startTime = System.currentTimeMillis();
         Movement toTest = null;
         ArrayList legalMoves= new ArrayList<>();
 
@@ -514,6 +516,8 @@ public class GameLogic {
                 }
             }
         }
+        long totalTime = startTime - System.currentTimeMillis();
+        System.out.println(totalTime);
         return legalMoves;
     }
 
