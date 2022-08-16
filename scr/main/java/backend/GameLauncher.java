@@ -4,29 +4,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * Questa classe fa il parsing dell'input dell'utente,
- * L'utente deve infatti scrivere la posizione di origine e quella di
- * destinazione del pezzo che vuole muovere.
+ * Command Line debug tool
  */
 public class GameLauncher {
     private static GameLogic s = new GameLogic();
     public static void main(String[] args) throws InterruptedException {
         boolean hasMoved = true;
         boolean correctInput = true;
-        boolean cheatmode = false;
-        System.out.println("Per personalizzare il pezzo in caso di promozione del pedone\n" +
-                "lo si puo' fare in qualsiasi momento, scrivendo promotion seguito dal tipo di pezzo\n" +
-                "altrimenti e' attivata automaticamente la promozione a donna\n");
-        CommandPrompt.ask("Premere un tasto per iniziare una nuova partita"
-                ,"   *   *   *   *   *   *   *   *   *   *   ");
-        while (!CommandPrompt.inputLetto()){};
-        if (!CommandPrompt.gotFromTerminal().equals("cheat")){
-            s.createStandardChessboard();
-        }
-        else{
-            cheatmode = true;
-            System.out.println("Welcome Man");
-        }
+        boolean cheatmode = true;
+
+        System.out.println("Welcome Man");
+        System.out.println("to load pieces, write load and press enter");
 
         s.print();
         while(cheatmode || !s.validMoves().isEmpty()){
@@ -169,9 +157,9 @@ public class GameLauncher {
                         for(int j=1;j<=8;j++){
                             s.setPezzo(i,j,null);
                         }
-                        s.updateLegalMoves();
-                        s.print();
                     }
+                    s.updateLegalMoves();
+                    s.print();
                     correctInput = true;
                 }
                 if(parsedStrings.size() == 1 &&
@@ -213,8 +201,8 @@ public class GameLauncher {
 
             }
 
-            if(!cheatmode && s.validMoves().isEmpty()){
-                System.out.println("La partita è finita");
+            if(s.getLegalMoves().isEmpty()){
+                System.out.println("La partita non potrebbe continuare");
             }
         }
 
