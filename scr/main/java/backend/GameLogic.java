@@ -21,6 +21,7 @@ public class GameLogic {
     private String promotionB="donB";
     private String promotionN="donN";
     private ArrayList<Movement> legalMoves;
+    private ArrayList<Movement> pseudoLegalMoves;
 
     public GameLogic() {
         this.matrix = new String[8][8];
@@ -159,7 +160,7 @@ public class GameLogic {
 
         // hack en passant
         if(getTipoPezzo(y0,x0) == 'p'){
-            enPassantHack(y0,x,y,x);
+            pawnLogic(y0,x0,y,x);
         }
 
         if(isInsideChessBoard(y0,x0,y,x)) {
@@ -218,7 +219,7 @@ public class GameLogic {
         return answer;
     }
 
-    public boolean enPassantHack(int y0, int x0, int y, int x) {
+    public boolean legalPawnMove(int y0, int x0, int y, int x) {
         boolean isLegalMove = false;
         //Segnala che è la prima volta che muovo il pezzo (en passant related)
         if (getPezzo(y0, x0).charAt(1) == 'e') {
@@ -230,9 +231,12 @@ public class GameLogic {
             pedone = pedone.replace('1', '_');
             setPezzo(y0, x0, pedone);
         }
+
         if (isNotRe(y, x)) {
             isLegalMove = thereIsAnEatablePieceByPawn(y0, x0, y, x);
-        } else if (isEmpty(y, x)) {
+        }
+
+        if (isEmpty(y, x)) {
             if (x0 == x) {
                 isLegalMove = true;
                 // Segnala che il pedone si è mosso in avanti di uno (En passant related)
@@ -254,17 +258,37 @@ public class GameLogic {
 
     public boolean isInCheck(){
         Boolean isInCheck = false;
+        String backupAltroRe = null;
+        int xAltroRe = -1;
+        int yAltroRe = -1;
         for(int x=1; x<=8; x++){
             for(int y=1; y<=8; y++){
                 if(getTipoPezzo(y,x) == 'r'){
                     if((getColorePezzo(y,x)=='B' && toccaAlBianco()) ||
                             (getColorePezzo(y,x)=='N' && toccaAlNero())){
+                        for(int x1=1; x1<=8; x1++){
+                            for(int y1=1; y1<=8; y1++) {
+                                if(getTipoPezzo(y1,x1) == 'r' && getPezzo(y,x) != getPezzo(y1,x1)) {
+                                    backupAltroRe = getPezzo(y1,x1);
+                                    yAltroRe=y1;
+                                    xAltroRe=x1;
+                                    break;
+                                }
+                            }
+                        }
+
                         String backupRe = getPezzo(y,x);
                         setPezzo(y,x,null);
+                        if (backupAltroRe!=null){
+                            setPezzo(yAltroRe,xAltroRe,null);
+                        }
                         jumpTurn();
-                        ArrayList<Movement> positions = validMoves();
+                        ArrayList<Movement> positions = legalMoves();
                         jumpTurn();
                         setPezzo(y,x,backupRe);
+                        if (backupAltroRe!=null){
+                            setPezzo(yAltroRe,xAltroRe,backupAltroRe);
+                        }
                         for (Movement mov : positions){
                             if (mov.getX() == x && mov.getY() == y){
                                 isInCheck = true;
@@ -276,17 +300,6 @@ public class GameLogic {
             }
         }
         return isInCheck;
-    }
-
-    public boolean isInCheck(int y0, int x0){
-        return getTipoPezzo(y0, x0) != 'r' && isInCheck();
-    }
-
-    public boolean isLegalMove(int y0, int x0, int y, int x){
-        if (pseudoLegalMove(y0,x0,y,x)){
-            return !isInCheck(y0, x0);
-        }
-        return false;
     }
 
 
@@ -301,9 +314,9 @@ public class GameLogic {
                 (getTipoPezzo(y0,x0) == 'p' && !((x == x0 || x == x0+1 || x == x0-1 ) && (y == y0 + 1 || y == y0 -1 || (y0 == 2 && y ==4) || (y0 == 7 && y==5)))) ||
                 (getTipoPezzo(y0,x0) == 'r' && !(x<=x0+1 && y<=y0+1 && x>=x0-1 && y>=y0-1)) ||
                 (getTipoPezzo(y0,x0) == 't' && !(x == x0 || y == y0) ||
-                (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)) ||
-                (getTipoPezzo(y0,x0) == 'a' && (y == y0 || x == x0)) ||
-                (getTipoPezzo(y0,x0) == 'c' && (x > x0 + 3 || x < x0 - 3 || y > y0 + 3 || y < y0 - 3)) )
+                        (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)) ||
+                        (getTipoPezzo(y0,x0) == 'a' && (y == y0 || x == x0)) ||
+                        (getTipoPezzo(y0,x0) == 'c' && (x > x0 + 3 || x < x0 - 3 || y > y0 + 3 || y < y0 - 3)) )
         ) {
             return false;
         }
@@ -311,36 +324,9 @@ public class GameLogic {
         boolean isLegalMove = false;
         switch (getTipoPezzo(y0, x0)) {
             case 'p': // pedina
-
-                // En passant fix
-                if (isEmpty(y, x)) {
-                    if (isBianco(y + 1, x) && y - 1 == 4 && y0 == 4 &&
-                            getTipoPezzo(y + 1, x) == 'p' &&
-                            isEnPassantAble(y + 1, x) &&
-                            getColorePezzo(y + 1, x) != getColorePezzo(y0, x0)
-                    ) {
-                        forceMove(y + 1, x, y, x);
-                    }
-                    if (isNero(y - 1, x) && y - 1 == 5 && y0 == 5 &&
-                            getTipoPezzo(y - 1, x) == 'p' &&
-                            isEnPassantAble(y - 1, x) &&
-                            getColorePezzo(y - 1, x) != getColorePezzo(y0, x0)
-                    ) {
-                        forceMove(y - 1, x, y, x);
-                    }
-                }
-
-
-                // Standard pawn logic
-                if (isBianco(y0, x0)) {
-                    if ((y0 == 2 && y == 4) || (y == y0 + 1 && isInsideChessBoard(y0 + 1))) {
-                        isLegalMove = enPassantHack(y0, x0, y, x);
-                    }
-                } else if (isNero(y0, x0)) {
-                    if ((y0 == 7 && y == 5) || (y == y0 - 1 && isInsideChessBoard(y0 - 1))) {
-                        isLegalMove = enPassantHack(y0, x0, y, x);
-                    }
-                }
+                String[][] backupMatrix =copy(matrix);
+                isLegalMove = pawnLogic(y0,x0,y,x);
+                matrix=copy(backupMatrix);
                 break;
             case 't':
                 int distance, minimum;
@@ -437,14 +423,14 @@ public class GameLogic {
                 // la mossa è fattibile da una torre?
                 donna = donna.replace('d', 't');
                 setPezzo(y0, x0, donna);
-                if (isLegalMove(y0,x0,y,x)){
+                if (pseudoLegalMove(y0,x0,y,x)){
                     setPezzo(y0,x0,backup);
                     return true;
                 }
                 // la mossa è fattibile da un'alfiere?
                 donna = donna.replace('t', 'a');
                 setPezzo(y0, x0, donna);
-                if (isLegalMove(y0,x0,y,x)){
+                if (pseudoLegalMove(y0,x0,y,x)){
                     setPezzo(y0,x0,backup);
                     return true;
                 }
@@ -471,7 +457,7 @@ public class GameLogic {
                 setPezzo(y0,x0,null);
                 jumpTurn();
 
-                ArrayList<Movement> positions = validMoves();
+                ArrayList<Movement> positions = legalMoves();
                 boolean isACheckedPosition = false;
                 for (Movement mov : positions){
                     if (mov.getX() == x && mov.getY() == y) {
@@ -497,34 +483,51 @@ public class GameLogic {
         return isLegalMove;
     }
 
-    public ArrayList<Movement> validMoves(){
+    public ArrayList<Movement> legalMoves(){
+        ArrayList<Movement> pseudoLegalMoves = pseudoLegalMoves();
+        ArrayList<Movement> legalMoves = new ArrayList<>();
+        for(Movement p : pseudoLegalMoves){
+            String[][] backupMatrix = copy(matrix);
+            forceMove(p.getY0(),p.getX0(),p.getY(),p.getX());
+            if(!isInCheck()){
+                legalMoves.add(p);
+            }
+            matrix = copy(backupMatrix);
+        }
+        return legalMoves;
+    }
 
+    public Boolean isLegalMove(int y0, int x0, int y, int x){
+        Movement m = new Movement();
+        m.set(y0,x0,y,x);
+        return legalMoves.contains(m);
+    }
+
+    public ArrayList<Movement> pseudoLegalMoves(){
         Movement toTest;
-        ArrayList legalMoves= new ArrayList<>();
+        ArrayList pseudoLegalMoves= new ArrayList<>();
 
         for (int i=1; i<=8;i++){
             for (int j=1; j<=8;j++){
                 if(!isEmpty(i,j) && !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
                     for (int k = 1; k <= 8; k++) {
                         for (int l = 1; l <= 8; l++) {
-                            String[][] backupChessBoard = copy(matrix);
-                            if (isLegalMove(i, j, k, l)) {
+                            if (pseudoLegalMove(i, j, k, l)) {
                                 toTest = new Movement();
                                 toTest.set(i, j, k, l);
-                                legalMoves.add(toTest);
+                                pseudoLegalMoves.add(toTest);
                             }
-                            matrix = copy(backupChessBoard);
                         }
                     }
                 }
             }
         }
-
-        return legalMoves;
+        return pseudoLegalMoves;
     }
 
     public void updateLegalMoves(){
-        this.legalMoves = validMoves();
+        this.pseudoLegalMoves = pseudoLegalMoves();
+        this.legalMoves = legalMoves();
     }
 
     public boolean isInsideChessBoard(int w) {
@@ -583,5 +586,43 @@ public class GameLogic {
         }
         return copy;
     }
+
+    /**
+     * Funzione non pura, ha side-effect sulla matrice
+     */
+    private Boolean pawnLogic(int y0,int x0, int y, int x){
+        // En passant fix
+        if (isEmpty(y, x)) {
+            if (isBianco(y + 1, x) && y + 1 == 4 && y0 == 4 &&
+                    getTipoPezzo(y + 1, x) == 'p' &&
+                    isEnPassantAble(y + 1, x) &&
+                    getColorePezzo(y + 1, x) != getColorePezzo(y0, x0)
+            ) {
+                forceMove(y + 1, x, y, x);
+            }
+            if (isNero(y - 1, x) && y - 1 == 5 && y0 == 5 &&
+                    getTipoPezzo(y - 1, x) == 'p' &&
+                    isEnPassantAble(y - 1, x) &&
+                    getColorePezzo(y - 1, x) != getColorePezzo(y0, x0)
+            ) {
+                forceMove(y - 1, x, y, x);
+            }
+        }
+
+
+        // Standard pawn logic
+        if (isBianco(y0, x0)) {
+            if ((y0 == 2 && y == 4) || (y == y0 + 1 && isInsideChessBoard(y0 + 1))) {
+
+                return legalPawnMove(y0, x0, y, x);
+            }
+        } else if (isNero(y0, x0)) {
+            if ((y0 == 7 && y == 5) || (y == y0 - 1 && isInsideChessBoard(y0 - 1))) {
+                return legalPawnMove(y0, x0, y, x);
+            }
+        }
+        return false;
+    }
 }
+
 
