@@ -1,6 +1,7 @@
 package backend;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * La scacchiera è una matrice di stringhe 8x8
@@ -13,7 +14,7 @@ import java.util.ArrayList;
  * le rimanenti 2 lettere centrali del nome possono essere utilizzate come meta-dati in casi particolari
  */
 public class GameLogic {
-    private final String[][] matrix;
+    private String[][] matrix;
     private boolean toccaAlBianco = true;
     private boolean lockTurn = false;
 
@@ -105,10 +106,8 @@ public class GameLogic {
                     System.out.print(y + " ");
                     y = y - 1;
                 }
-                if (matrix[y][x] != null && matrix[y][x].charAt(0) != 'p') {
+                if (matrix[y][x] != null) {
                     System.out.print(matrix[y][x]);
-                } else if (matrix[y][x] != null && matrix[y][x].charAt(0) == 'p') {
-                    System.out.print("ped" + getColorePezzo(y + 1, x + 1));
                 } else {
                     System.out.print("|__|");
                 }
@@ -150,12 +149,17 @@ public class GameLogic {
     }
 
     public void forceMove(int y0, int x0, int y, int x) {
-        // fix promozione del pedone
+        // hack promozione del pedone
         if(y0 == 7 && y == 8 && getTipoPezzo(y0,x0) == 'p'){
             if(toccaAlBianco()){
                 this.setPezzo(y0,x0,promotionB);
             }
             else this.setPezzo(y0,x0,promotionN);
+        }
+
+        // hack en passant
+        if(getTipoPezzo(y0,x0) == 'p'){
+            enPassantHack(y0,x,y,x);
         }
 
         if(isInsideChessBoard(y0,x0,y,x)) {
@@ -214,7 +218,7 @@ public class GameLogic {
         return answer;
     }
 
-    public boolean legalPawnMove(int y0, int x0, int y, int x) {
+    public boolean enPassantHack(int y0, int x0, int y, int x) {
         boolean isLegalMove = false;
         //Segnala che è la prima volta che muovo il pezzo (en passant related)
         if (getPezzo(y0, x0).charAt(1) == 'e') {
@@ -249,6 +253,7 @@ public class GameLogic {
     }
 
     public boolean isInCheck(){
+        Boolean isInCheck = false;
         for(int x=1; x<=8; x++){
             for(int y=1; y<=8; y++){
                 if(getTipoPezzo(y,x) == 'r'){
@@ -262,14 +267,15 @@ public class GameLogic {
                         setPezzo(y,x,backupRe);
                         for (Movement mov : positions){
                             if (mov.getX() == x && mov.getY() == y){
-                                return true;
+                                isInCheck = true;
+                                break;
                             }
                         }
                     }
                 }
             }
         }
-        return false;
+        return isInCheck;
     }
 
     public boolean isInCheck(int y0, int x0){
@@ -292,12 +298,12 @@ public class GameLogic {
                 (toccaAlNero() && isBianco(y0, x0))  || // rispetto al colore del turno corrente
                 (getColorePezzo(y,x) == getColorePezzo(y0,x0)) || // se vuoi muovere un pezzo su un altro pezzo dello stesso colore
                 // condizioni per scartare subito un mucchio di caselle
-                (getTipoPezzo(y0,x0) == 'p' && !(x == x0 || x == x0+1 || x == x0-1 || y > y0+2 || y<y0-2)) ||
+                (getTipoPezzo(y0,x0) == 'p' && !((x == x0 || x == x0+1 || x == x0-1 ) && (y == y0 + 1 || y == y0 -1 || (y0 == 2 && y ==4) || (y0 == 7 && y==5)))) ||
                 (getTipoPezzo(y0,x0) == 'r' && !(x<=x0+1 && y<=y0+1 && x>=x0-1 && y>=y0-1)) ||
                 (getTipoPezzo(y0,x0) == 't' && !(x == x0 || y == y0) ||
-                        (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)) ||
-                        (getTipoPezzo(y0,x0) == 'a' && (y == y0 || x == x0)) ||
-                        (getTipoPezzo(y0,x0) == 'c' && (x > x0 + 3 || x < x0 - 3 || y > y0 + 3 || y < y0 - 3)) )
+                (getTipoPezzo(y0,x0) == 'a' && !((x0 + y0) % 2 == (x + y) % 2)) ||
+                (getTipoPezzo(y0,x0) == 'a' && (y == y0 || x == x0)) ||
+                (getTipoPezzo(y0,x0) == 'c' && (x > x0 + 3 || x < x0 - 3 || y > y0 + 3 || y < y0 - 3)) )
         ) {
             return false;
         }
@@ -328,11 +334,11 @@ public class GameLogic {
                 // Standard pawn logic
                 if (isBianco(y0, x0)) {
                     if ((y0 == 2 && y == 4) || (y == y0 + 1 && isInsideChessBoard(y0 + 1))) {
-                        isLegalMove = legalPawnMove(y0, x0, y, x);
+                        isLegalMove = enPassantHack(y0, x0, y, x);
                     }
                 } else if (isNero(y0, x0)) {
                     if ((y0 == 7 && y == 5) || (y == y0 - 1 && isInsideChessBoard(y0 - 1))) {
-                        isLegalMove = legalPawnMove(y0, x0, y, x);
+                        isLegalMove = enPassantHack(y0, x0, y, x);
                     }
                 }
                 break;
@@ -492,6 +498,7 @@ public class GameLogic {
     }
 
     public ArrayList<Movement> validMoves(){
+
         Movement toTest;
         ArrayList legalMoves= new ArrayList<>();
 
@@ -500,16 +507,19 @@ public class GameLogic {
                 if(!isEmpty(i,j) && !((toccaAlBianco() && isNero(i, j)) || (toccaAlNero() && isBianco(i, j))) ) {
                     for (int k = 1; k <= 8; k++) {
                         for (int l = 1; l <= 8; l++) {
+                            String[][] backupChessBoard = copy(matrix);
                             if (isLegalMove(i, j, k, l)) {
                                 toTest = new Movement();
                                 toTest.set(i, j, k, l);
                                 legalMoves.add(toTest);
                             }
+                            matrix = copy(backupChessBoard);
                         }
                     }
                 }
             }
         }
+
         return legalMoves;
     }
 
@@ -562,4 +572,16 @@ public class GameLogic {
     public ArrayList<Movement> getLegalMoves() {
         return legalMoves;
     }
+
+    public String[][] copy(String[][] src) {
+        if (src == null) {
+            return null;
+        }
+        String[][] copy = new String[src.length][];
+        for (int i = 0; i < src.length; i++) {
+            copy[i] = Arrays.copyOf(src[i], src[i].length);
+        }
+        return copy;
+    }
 }
+

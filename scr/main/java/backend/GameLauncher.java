@@ -17,7 +17,7 @@ public class GameLauncher {
         System.out.println("to load pieces, write load and press enter");
 
         s.print();
-        while(cheatmode || !s.validMoves().isEmpty()){
+        while(cheatmode || !s.getLegalMoves().isEmpty()){
 
             if(!hasMoved){
                 System.out.println("Mossa precedente non legale");
