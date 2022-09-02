@@ -255,6 +255,10 @@ public class GameLogic {
         return getTipoPezzo(y, x) != 'r' && !isEmpty(y, x);
     }
 
+    public boolean isNotNull(int y, int x) {
+        return getPezzo(y,x)!=null;
+    }
+
     public boolean thereIsAnEatablePieceByPawn(int y0, int x0, int y, int x) {
         boolean answer = false;
         if (getColorePezzo(y, x) != getColorePezzo(y0, x0) && getColorePezzo(y0, x0) != '0' && getColorePezzo(y, x) != '0') {
@@ -287,7 +291,7 @@ public class GameLogic {
             setPezzo(y0, x0, pedone);
         }
 
-        if (isNotRe(y, x)) {
+        if (isNotNull(y, x)) {
             isLegalMove = thereIsAnEatablePieceByPawn(y0, x0, y, x);
         }
 
@@ -313,31 +317,12 @@ public class GameLogic {
 
     public boolean isInCheck(){
         Boolean isInCheck = false;
-        String backupAltroRe = null;
-        int xAltroRe = -1;
-        int yAltroRe = -1;
         for(int x=1; x<=8; x++){
             for(int y=1; y<=8; y++){
                 if(getTipoPezzo(y,x) == 'r'){
                     if((getColorePezzo(y,x)=='B' && toccaAlBianco()) || (getColorePezzo(y,x)=='N' && toccaAlNero())){
-                        // Assumendo che ci sia un altro re di colore opposto devo poter
-                        // rimuovere l'altro re, altrimenti dare scacco sarebbe una
-                        // risposta valida allo scacco
-                        for(int x1=1; x1<=8; x1++){
-                            for(int y1=1; y1<=8; y1++) {
-                                if(getTipoPezzo(y1,x1) == 'r' && getPezzo(y,x) != getPezzo(y1,x1)) {
-                                    backupAltroRe = getPezzo(y1,x1);
-                                    yAltroRe=y1;
-                                    xAltroRe=x1;
-                                    break;
-                                }
-                            }
-                        }
-                        String backupRe = getPezzo(y,x);
+                        String[][] backupMatrix =copy(matrix);
                         setPezzo(y,x,null);
-                        if (backupAltroRe!=null){
-                            setPezzo(yAltroRe,xAltroRe,null);
-                        }
                         // si passi alla vista dell'altro giocatore
                         jumpTurn();
                         ArrayList<Movement> positions = pseudoLegalMoves();
@@ -352,11 +337,26 @@ public class GameLogic {
                                 break;
                             }
                         }
-                        //restore
-                        setPezzo(y,x,backupRe);
-                        if (backupAltroRe!=null){
-                            setPezzo(yAltroRe,xAltroRe,backupAltroRe);
+                        matrix=copy(backupMatrix);
+                        jumpTurn();
+                        if(isBianco(y,x)){
+                            setPezzo(y,x,"p__B");
                         }
+                        else{
+                            setPezzo(y,x,"p__N");
+                        }
+                        positions = pseudoLegalMoves();
+                        jumpTurn();
+
+                        for (Movement mov : positions){
+                            if (mov.getX() == x && mov.getY() == y){
+                                // fix pedina che andando avanti crede di poter mettere in scacco il re
+                                isInCheck = true;
+                                break;
+                            }
+                        }
+                        //restore
+                        matrix=copy(backupMatrix);
                     }
                 }
             }
@@ -391,37 +391,36 @@ public class GameLogic {
         boolean isLegalMove = false;
         switch (getTipoPezzo(y0, x0)) {
             case 'p': // pedina
-                String[][] backupMatrix =copy(matrix);
+                String[][] backupMatrix = copy(matrix);
                 isLegalMove = pawnLogic(y0,x0,y,x);
-                matrix=copy(backupMatrix);
+                matrix = copy(backupMatrix);
                 break;
             case 't':
                 int distance, minimum;
                 boolean thereIsAPieceInTheMiddle = false;
-                if ((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
-                        isEmpty(y, x)) {
-                    if (y0 == y) {
-                        distance = Math.max(x0, x) - Math.min(x0, x);
-                        // se c'è un pezzo in mezzo la mossa è illegale
-                        minimum = Math.min(x0, x);
-                        for (int i = 1; i < distance; i++) {
-                            if (!isEmpty(y, minimum + i)) {
-                                thereIsAPieceInTheMiddle = true;
-                            }
+                if (y0 == y) {
+                    distance = Math.max(x0, x) - Math.min(x0, x);
+                    // se c'è un pezzo in mezzo la mossa è illegale
+                    minimum = Math.min(x0, x);
+                    for (int i = 1; i < distance; i++) {
+                        if (!isEmpty(y, minimum + i)) {
+                            thereIsAPieceInTheMiddle = true;
+                            break;
                         }
-                        isLegalMove = !thereIsAPieceInTheMiddle;
                     }
-                    if (x0 == x) {
-                        distance = Math.max(y0, y) - Math.min(y0, y);//2
-                        // se c'è un pezzo in mezzo la mossa è illegale
-                        minimum = Math.min(y0, y);//5
-                        for (int i = 1; i < distance; i++) {
-                            if (!isEmpty(minimum + i, x)) {
-                                thereIsAPieceInTheMiddle = true;
-                            }
+                    isLegalMove = !thereIsAPieceInTheMiddle;
+                }
+                if (x0 == x) {
+                    distance = Math.max(y0, y) - Math.min(y0, y);//2
+                    // se c'è un pezzo in mezzo la mossa è illegale
+                    minimum = Math.min(y0, y);//5
+                    for (int i = 1; i < distance; i++) {
+                        if (!isEmpty(minimum + i, x)) {
+                            thereIsAPieceInTheMiddle = true;
+                            break;
                         }
-                        isLegalMove = !thereIsAPieceInTheMiddle;
                     }
+                    isLegalMove = !thereIsAPieceInTheMiddle;
                 }
                 break;
             case 'a':
@@ -459,6 +458,7 @@ public class GameLogic {
                             //System.out.println("Checking emptiness of (" + xx + "," + yy+")");
                             if (!isEmpty(yy, xx)) {
                                 pieceInTheMiddle = true;
+                                break;
                                 //System.out.println("not empty");
                             } else {
                                 //System.out.println("empty");
@@ -512,35 +512,18 @@ public class GameLogic {
                         (y == y0 - 1 && x == x0 + 2) ||
                         (y == y0 + 2 && x == x0 - 1) ||
                         (y == y0 + 1 && x == x0 - 2) ){
-                    if((isNotRe(y, x) && getColorePezzo(y, x) != getColorePezzo(y0, x0)) ||
-                            isEmpty(y, x)){
-                        isLegalMove = true;
-                    }
+                    isLegalMove = true;
                 }
                 break;
             case 'r':
-                // il re non si puo' mai mettere sotto scacco
-                String backupRe = getPezzo(y0,x0);
-                setPezzo(y0,x0,null);
-                jumpTurn();
-
-                ArrayList<Movement> positions = pseudoLegalMoves();
-                boolean isACheckedPosition = false;
-                for (Movement mov : positions){
-                    if (mov.getX() == x && mov.getY() == y) {
-                        isACheckedPosition = true;
-                        break;
-                    }
+                if (getTipoPezzo(y,x)=='r'){
+                    return false;
                 }
-                jumpTurn();
-                setPezzo(y0,x0,backupRe);
 
                 // Occorre verificare se il re si vuole muovere "nelle vicinanze"
                 if(x<=x0+1 && y<=y0+1 && x>=x0-1 && y>=y0-1){
-                    if(isEmpty(y, x) && !isACheckedPosition){
-                        isLegalMove = true;
-                        break;
-                    }
+                    isLegalMove = true;
+                    break;
                 }
                 if(y0 == 1 && x0 == 5 && getColorePezzo(y0,x0)=='B' && y==1 && x==7){
                     if(getPezzo(1,5)=="re_B" && getPezzo(1,6)==null && getPezzo(1,7)==null && getPezzo(1,8)=="torB"){
@@ -585,12 +568,6 @@ public class GameLogic {
             matrix = copy(backupMatrix);
         }
         return legalMoves;
-    }
-
-    public Boolean isLegalMove(int y0, int x0, int y, int x){
-        Movement m = new Movement();
-        m.set(y0,x0,y,x);
-        return legalMoves.contains(m);
     }
 
     public ArrayList<Movement> pseudoLegalMoves(){
@@ -677,10 +654,9 @@ public class GameLogic {
         return copy;
     }
 
-    /**
-     * Funzione non pura, ha side-effect sulla matrice
-     */
+    /** Funzione non pura, ha side-effects sulla matrice**/
     private Boolean pawnLogic(int y0,int x0, int y, int x){
+        boolean toReturn = false;
         // En passant fix
         if (isEmpty(y, x)) {
             if (isBianco(y + 1, x) && y + 1 == 4 && y0 == 4 &&
@@ -703,16 +679,14 @@ public class GameLogic {
         // Standard pawn logic
         if (isBianco(y0, x0)) {
             if ((y0 == 2 && y == 4) || (y == y0 + 1 && isInsideChessBoard(y0 + 1))) {
-
-                return legalPawnMove(y0, x0, y, x);
+                toReturn = legalPawnMove(y0, x0, y, x);
             }
         } else if (isNero(y0, x0)) {
             if ((y0 == 7 && y == 5) || (y == y0 - 1 && isInsideChessBoard(y0 - 1))) {
-                return legalPawnMove(y0, x0, y, x);
+                toReturn = legalPawnMove(y0, x0, y, x);
             }
         }
-        return false;
+        return toReturn;
     }
 }
-
 
