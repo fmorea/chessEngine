@@ -193,6 +193,16 @@ public class GameLauncher {
                     s.print();
                     correctInput = true;
                 }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "undo")){
+                    s.undo();
+                    correctInput = true;
+                }
+                if(parsedStrings.size() == 1 &&
+                        parsedStrings.get(0).equals( "redo")){
+                    s.redo();
+                    correctInput = true;
+                }
 
             }
 
